@@ -18,8 +18,8 @@
 %global pending_upgrade_file %{pending_upgrade_path}/upgrade_pending
 
 Name:           puppet
-Version:        3.7.5
-Release:        4%{?dist}
+Version:        3.8.7
+Release:        1%{?dist}
 Summary:        A network tool for managing many disparate systems
 License:        ASL 2.0
 URL:            http://puppetlabs.com
@@ -47,8 +47,6 @@ Requires:       ruby(release)
 Requires:       ruby(shadow)
 
 Requires:       rubygem(json)
-Requires:       rubygem(pathspec)
-Requires:       rubygem(safe_yaml)
 
 # Prevents jruby from being pulled in by dependencies (BZ #985208)
 Requires:       ruby
@@ -66,7 +64,6 @@ BuildRequires:  hiera >= 1.0.0
 
 Requires:       facter >= 1.6.6
 Requires:       hiera >= 1.0.0
-Requires:       rubygem(rgen)
 Obsoletes:      hiera-puppet < 1.0.0-2
 Provides:       hiera-puppet = %{version}-%{release}
 
@@ -116,9 +113,7 @@ The server can also function as a certificate authority and file server.
 %prep
 %setup -q
 chmod +x ext/puppet-load.rb ext/regexp_nodes/regexp_nodes.rb
-# Unbundle
-rm -r lib/puppet/vendor/*{pathspec,rgen,safe_yaml}*
-echo "require 'safe_yaml'" > lib/puppet/vendor/require_vendored.rb
+
 
 %build
 # Nothing to build
@@ -374,6 +369,10 @@ exit 0
 rm -rf %{buildroot}
 
 %changelog
+* Fri Jul  1 2016 hguemar <hguemar@senbonzakura> - 3.8.7-1
+- Upstream 3.8.7
+- Do not unbundle rubygem(pathspec) and rubygem(safe_yaml)
+
 * Wed Apr 22 2015 Orion Poplawski <orion@cora.nwra.com> - 3.7.5-4
 - Do not unbundle puppet's semantic module
 
