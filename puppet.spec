@@ -19,7 +19,7 @@
 
 Name:           puppet
 Version:        3.8.7
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        A network tool for managing many disparate systems
 License:        ASL 2.0
 URL:            http://puppetlabs.com
@@ -28,6 +28,7 @@ Source1:        http://downloads.puppetlabs.com/%{name}/%{name}-%{version}.tar.g
 Source2:        puppet-nm-dispatcher
 Source3:        puppet-nm-dispatcher.systemd
 Source4:        start-puppet-wrapper
+Patch0001:      0001-Puppet-3.8.7-enable-allow_virtual-by-default.patch
 
 Group:          System Environment/Base
 
@@ -112,6 +113,7 @@ The server can also function as a certificate authority and file server.
 
 %prep
 %setup -q
+%patch0001 -p1 -b .allow_virtual
 chmod +x ext/puppet-load.rb ext/regexp_nodes/regexp_nodes.rb
 
 
@@ -369,6 +371,9 @@ exit 0
 rm -rf %{buildroot}
 
 %changelog
+* Mon Jul  4 2016 Haïkel Guémar <hguemar@fedoraproject.org> - 3.8.7-2
+- Enable allow_virtual by default (fix breakage w/ virtual packages)
+
 * Fri Jul  1 2016 hguemar <hguemar@senbonzakura> - 3.8.7-1
 - Upstream 3.8.7
 - Do not unbundle rubygem(pathspec) and rubygem(safe_yaml)
