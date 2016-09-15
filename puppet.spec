@@ -19,7 +19,7 @@
 
 Name:           puppet
 Version:        4.6.2
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        A network tool for managing many disparate systems
 License:        ASL 2.0
 URL:            http://puppetlabs.com
@@ -50,7 +50,7 @@ Requires:       ruby(release)
 Requires:       ruby(shadow)
 
 Requires:       rubygem(json)
-Requires:       rubygem(pathspec)
+#Requires:       rubygem(pathspec)
 
 # Prevents jruby from being pulled in by dependencies (BZ #985208)
 Requires:       ruby
@@ -120,7 +120,7 @@ The server can also function as a certificate authority and file server.
 %patch01 -p1 -b .paths
 %patch02 -p1 -b .server
 # Unbundle
-rm -r lib/puppet/vendor/*{pathspec,rgen}*
+#rm -r lib/puppet/vendor/*{pathspec,rgen}*
 
 %build
 # Nothing to build
@@ -386,6 +386,9 @@ exit 0
 rm -rf %{buildroot}
 
 %changelog
+* Thu Sep 15 2016 Haïkel Guémar <hguemar@fedoraproject.org> - 4.6.2-2
+- Undo rubygem(pathspec) bundling on EL7
+
 * Tue Sep 13 2016 Haïkel Guémar <hguemar@fedoraproject.org> - 4.6.2-1
 - Upstream 4.6.2
 
