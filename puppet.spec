@@ -19,7 +19,7 @@
 
 Name:           puppet
 Version:        4.6.2
-Release:        4%{?dist}
+Release:        5%{?dist}
 Summary:        A network tool for managing many disparate systems
 License:        ASL 2.0
 URL:            http://puppetlabs.com
@@ -210,9 +210,9 @@ sed -i 's|^ExecStart=.*/bin/puppet|ExecStart=/usr/bin/start-puppet-agent|' \
 
 %if 0%{?fedora} >= 15
 # Setup tmpfiles.d config
-mkdir -p %{buildroot}%{_sysconfdir}/tmpfiles.d
+mkdir -p %{buildroot}%{_tmpfilesdir}
 echo "D /var/run/%{name} 0755 %{name} %{name} -" > \
-    %{buildroot}%{_sysconfdir}/tmpfiles.d/%{name}.conf
+    %{buildroot}%{_tmpfilesdir}/%{name}.conf
 %endif
 
 # Create puppet modules directory for puppet module tool
@@ -221,7 +221,8 @@ mkdir -p %{buildroot}%{_sysconfdir}/%{name}/modules
 
 %files
 %defattr(-, root, root, 0755)
-%doc LICENSE README.md examples
+%doc README.md examples
+%license LICENSE
 %{_bindir}/puppet
 %{_bindir}/start-puppet-*
 %{_bindir}/extlookup2hiera
@@ -236,7 +237,7 @@ mkdir -p %{buildroot}%{_sysconfdir}/%{name}/modules
 %dir %{_sysconfdir}/puppet
 %dir %{_sysconfdir}/%{name}/modules
 %if 0%{?fedora} >= 15
-%config(noreplace) %{_sysconfdir}/tmpfiles.d/%{name}.conf
+%{_tmpfilesdir}/%{name}.conf
 %endif
 %config(noreplace) %{_sysconfdir}/puppet/puppet.conf
 %config(noreplace) %{_sysconfdir}/puppet/auth.conf
@@ -392,6 +393,10 @@ exit 0
 rm -rf %{buildroot}
 
 %changelog
+* Tue May 23 2017 Ville Skyttä <ville.skytta@iki.fi> - 4.6.2-5
+- Move tmpfiles.d config to %%{_tmpfilesdir}
+- Install LICENSE as %%license
+
 * Tue May 23 2017 Dominic Cleal <dominic@cleal.org> - 4.6.2-4
 - Fix remote code exec via YAML deserialization (BZ#1452654, CVE-2017-2295)
 
