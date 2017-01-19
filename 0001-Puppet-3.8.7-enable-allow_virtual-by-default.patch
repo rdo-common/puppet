@@ -1,0 +1,27 @@
+From 4e6618fa4d072ef1b9137b7ebe978d762e7ec369 Mon Sep 17 00:00:00 2001
+From: Haikel Guemar <hguemar@fedoraproject.org>
+Date: Mon, 4 Jul 2016 14:27:39 +0200
+Subject: [PATCH 1/1] Puppet 3.8.7: enable allow_virtual by default
+
+Fix Puppet < 4.x buggy behaviour with RPM packages when
+using Provides. Known to break with Python2/3 migrated packages
+---
+ lib/puppet/type/package.rb | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/lib/puppet/type/package.rb b/lib/puppet/type/package.rb
+index bf47f32..03b63af 100644
+--- a/lib/puppet/type/package.rb
++++ b/lib/puppet/type/package.rb
+@@ -439,7 +439,7 @@ module Puppet
+       desc 'Specifies if virtual package names are allowed for install and uninstall.'
+ 
+       # In a future release, this should be defaulted to true
+-      defaultto false
++      defaultto true
+     end
+ 
+     autorequire(:file) do
+-- 
+2.9.0
+
