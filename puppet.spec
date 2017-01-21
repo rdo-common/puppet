@@ -18,8 +18,8 @@
 %global pending_upgrade_file %{pending_upgrade_path}/upgrade_pending
 
 Name:           puppet
-Version:        4.6.2
-Release:        2%{?dist}
+Version:        4.8.2
+Release:        1%{?dist}
 Summary:        A network tool for managing many disparate systems
 License:        ASL 2.0
 URL:            http://puppetlabs.com
@@ -386,6 +386,9 @@ exit 0
 rm -rf %{buildroot}
 
 %changelog
+* Fri Jan 20 2017 Alan Pevec <apevec AT redhat.com> - 4.8.2-1
+- Upstream 4.8.2
+
 * Thu Sep 15 2016 Haïkel Guémar <hguemar@fedoraproject.org> - 4.6.2-2
 - Undo rubygem(pathspec) bundling on EL7
 
