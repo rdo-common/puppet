@@ -19,7 +19,7 @@
 
 Name:           puppet
 Version:        4.6.2
-Release:        2%{?dist}
+Release:        3%{?dist}
 Summary:        A network tool for managing many disparate systems
 License:        ASL 2.0
 URL:            http://puppetlabs.com
@@ -32,6 +32,8 @@ Source4:        start-puppet-wrapper
 # Puppetlabs messed up with default paths
 Patch01:        0001-Fix-puppet-paths.patch
 Patch02:        0002-Revert-maint-Remove-puppetmaster.service.patch
+Patch03:        0003-Remove-unused-requre-xmlrpc-client.patch
+Patch04:        0004-PUP-7383-Skip-cipher-monkey-patch-on-ruby-2.4.patch
 Group:          System Environment/Base
 
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
@@ -119,6 +121,8 @@ The server can also function as a certificate authority and file server.
 %setup -q
 %patch01 -p1 -b .paths
 %patch02 -p1 -b .server
+%patch03 -p1
+%patch04 -p1
 # Unbundle
 rm -r lib/puppet/vendor/*{pathspec,rgen}*
 
@@ -386,6 +390,9 @@ exit 0
 rm -rf %{buildroot}
 
 %changelog
+* Thu May 18 2017 Dominic Cleal <dominic@cleal.org> - 4.6.2-3
+- Fix Ruby 2.4 compatibility, xmlrpc + OpenSSL errors (BZ#1443673, BZ#1440710)
+
 * Sat Feb 11 2017 Fedora Release Engineering <releng@fedoraproject.org> - 4.6.2-2
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_26_Mass_Rebuild
 
