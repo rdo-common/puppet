@@ -19,7 +19,7 @@
 
 Name:           puppet
 Version:        4.6.2
-Release:        3%{?dist}
+Release:        4%{?dist}
 Summary:        A network tool for managing many disparate systems
 License:        ASL 2.0
 URL:            http://puppetlabs.com
@@ -34,6 +34,7 @@ Patch01:        0001-Fix-puppet-paths.patch
 Patch02:        0002-Revert-maint-Remove-puppetmaster.service.patch
 Patch03:        0003-Remove-unused-requre-xmlrpc-client.patch
 Patch04:        0004-PUP-7383-Skip-cipher-monkey-patch-on-ruby-2.4.patch
+Patch05:        0005-PUP-7483-Reject-all-fact-formats-except-PSON.patch
 Group:          System Environment/Base
 
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
@@ -123,6 +124,7 @@ The server can also function as a certificate authority and file server.
 %patch02 -p1 -b .server
 %patch03 -p1
 %patch04 -p1
+%patch05 -p1
 # Unbundle
 rm -r lib/puppet/vendor/*{pathspec,rgen}*
 
@@ -390,6 +392,9 @@ exit 0
 rm -rf %{buildroot}
 
 %changelog
+* Tue May 23 2017 Dominic Cleal <dominic@cleal.org> - 4.6.2-4
+- Fix remote code exec via YAML deserialization (BZ#1452654, CVE-2017-2295)
+
 * Thu May 18 2017 Dominic Cleal <dominic@cleal.org> - 4.6.2-3
 - Fix Ruby 2.4 compatibility, xmlrpc + OpenSSL errors (BZ#1443673, BZ#1440710)
 
