@@ -18,8 +18,8 @@
 %global pending_upgrade_file %{pending_upgrade_path}/upgrade_pending
 
 Name:           puppet
-Version:        4.6.2
-Release:        5%{?dist}
+Version:        4.8.2
+Release:        1%{?dist}
 Summary:        A network tool for managing many disparate systems
 License:        ASL 2.0
 URL:            http://puppetlabs.com
@@ -32,14 +32,12 @@ Source4:        start-puppet-wrapper
 # Puppetlabs messed up with default paths
 Patch01:        0001-Fix-puppet-paths.patch
 Patch02:        0002-Revert-maint-Remove-puppetmaster.service.patch
-Patch03:        0003-Remove-unused-requre-xmlrpc-client.patch
 Patch04:        0004-PUP-7383-Skip-cipher-monkey-patch-on-ruby-2.4.patch
 Patch05:        0005-PUP-7483-Reject-all-fact-formats-except-PSON.patch
 Group:          System Environment/Base
 
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
-BuildRequires:  facter >= 1.6.6
 BuildRequires:  ruby-devel >= 1.8.7
 # ruby-devel does not require the base package, but requires -libs instead
 BuildRequires:  ruby >= 1.8.7
@@ -50,10 +48,11 @@ Requires:       ruby(abi) = 1.8
 %else
 Requires:       ruby(release)
 %endif
-Requires:       ruby(shadow)
 
+Requires:       ruby(shadow)
 Requires:       rubygem(json)
 Requires:       rubygem(pathspec)
+Requires:       rubygem(rgen)
 
 # Prevents jruby from being pulled in by dependencies (BZ #985208)
 Requires:       ruby
@@ -67,11 +66,16 @@ Requires:       ruby
 %endif
 %endif
 
-BuildRequires:  hiera >= 1.0.0
+BuildRequires:  facter >= 2.0
+BuildRequires:  facter < 4
+BuildRequires:  hiera >= 2.0
+BuildRequires:  hiera < 4
 
-Requires:       facter >= 1.6.6
-Requires:       hiera >= 1.0.0
-Requires:       rubygem(rgen)
+Requires:       facter >= 2.0
+Requires:       facter < 4
+Requires:       hiera >= 2.0
+Requires:       hiera < 4
+
 Obsoletes:      hiera-puppet < 1.0.0-2
 Provides:       hiera-puppet = %{version}-%{release}
 
@@ -122,7 +126,6 @@ The server can also function as a certificate authority and file server.
 %setup -q
 %patch01 -p1 -b .paths
 %patch02 -p1 -b .server
-%patch03 -p1
 %patch04 -p1
 %patch05 -p1
 # Unbundle
@@ -393,6 +396,9 @@ exit 0
 rm -rf %{buildroot}
 
 %changelog
+* Thu May 25 2017 Dominic Cleal <dominic@cleal.org> - 4.8.2-1
+- Update to 4.8.2
+
 * Tue May 23 2017 Ville Skyttä <ville.skytta@iki.fi> - 4.6.2-5
 - Move tmpfiles.d config to %%{_tmpfilesdir}
 - Install LICENSE as %%license
