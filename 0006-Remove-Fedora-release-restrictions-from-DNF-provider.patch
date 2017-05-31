@@ -17,7 +17,7 @@ index e144a1a..c0ed877 100644
        end
    end
  
--  defaultfor :operatingsystem => :fedora, :operatingsystemmajrelease => ['22', '23', '24']
+-  defaultfor :operatingsystem => :fedora, :operatingsystemmajrelease => ['22', '23', '24', '25']
 +  defaultfor :operatingsystem => :fedora
  
    def self.update_command
