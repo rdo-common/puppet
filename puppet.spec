@@ -19,7 +19,7 @@
 
 Name:           puppet
 Version:        4.8.2
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        A network tool for managing many disparate systems
 License:        ASL 2.0
 URL:            http://puppetlabs.com
@@ -34,6 +34,7 @@ Patch01:        0001-Fix-puppet-paths.patch
 Patch02:        0002-Revert-maint-Remove-puppetmaster.service.patch
 Patch04:        0004-PUP-7383-Skip-cipher-monkey-patch-on-ruby-2.4.patch
 Patch05:        0005-PUP-7483-Reject-all-fact-formats-except-PSON.patch
+Patch06:        0006-Remove-Fedora-release-restrictions-from-DNF-provider.patch
 Group:          System Environment/Base
 
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
@@ -128,6 +129,7 @@ The server can also function as a certificate authority and file server.
 %patch02 -p1 -b .server
 %patch04 -p1
 %patch05 -p1
+%patch06 -p1
 # Unbundle
 rm -r lib/puppet/vendor/*{pathspec,rgen}*
 
@@ -396,6 +398,9 @@ exit 0
 rm -rf %{buildroot}
 
 %changelog
+* Wed May 31 2017 Dominic Cleal <dominic@cleal.org> - 4.8.2-2
+- Remove Fedora release restrictions from DNF package provider
+
 * Thu May 25 2017 Dominic Cleal <dominic@cleal.org> - 4.8.2-1
 - Update to 4.8.2
 
