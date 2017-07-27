@@ -19,7 +19,7 @@
 
 Name:           puppet
 Version:        4.10.1
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        A network tool for managing many disparate systems
 License:        ASL 2.0
 URL:            http://puppetlabs.com
@@ -396,6 +396,9 @@ exit 0
 rm -rf %{buildroot}
 
 %changelog
+* Thu Jul 27 2017 Fedora Release Engineering <releng@fedoraproject.org> - 4.10.1-2
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_27_Mass_Rebuild
+
 * Wed May 31 2017 Dominic Cleal <dominic@cleal.org> - 4.10.1-1
 - Update to 4.10.1
 
