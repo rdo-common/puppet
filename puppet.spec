@@ -19,7 +19,7 @@
 
 Name:           puppet
 Version:        4.8.2
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        A network tool for managing many disparate systems
 License:        ASL 2.0
 URL:            http://puppetlabs.com
@@ -71,6 +71,7 @@ Requires:       hiera >= 1.0.0
 Requires:       rubygem(rgen)
 Obsoletes:      hiera-puppet < 1.0.0-2
 Provides:       hiera-puppet = %{version}-%{release}
+Obsoletes:      ruby-rgen < 0.7.0
 
 %{!?_without_augeas:Requires: ruby(augeas)}
 
@@ -386,6 +387,9 @@ exit 0
 rm -rf %{buildroot}
 
 %changelog
+* Wed Jul 05 2017 Jon Schlueter <jschluet@redhat.com> 4.8.2-2
+- Obsoletes ruby-rgen in favor of rubygem-rgen rhbz#1468027
+
 * Fri Jan 20 2017 Alan Pevec <apevec AT redhat.com> - 4.8.2-1
 - Upstream 4.8.2
 
