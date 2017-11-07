@@ -19,7 +19,7 @@
 
 Name:           puppet
 Version:        4.10.1
-Release:        2%{?dist}
+Release:        3%{?dist}
 Summary:        A network tool for managing many disparate systems
 License:        ASL 2.0
 URL:            http://puppetlabs.com
@@ -66,13 +66,23 @@ Requires:       ruby
 %endif
 %endif
 
+# Fedora 28 updates to facter3 where puppet needs to require the ruby bindings specifically
+%if 0%{?fedora} >= 28
+BuildRequires:  ruby-facter >= 3.0
+BuildRequires:  ruby-facter < 4
+Requires:       ruby-facter >= 3.0
+Requires:       ruby-facter < 4
+%else
 BuildRequires:  facter >= 2.0
 BuildRequires:  facter < 4
+Requires:       facter >= 2.0
+Requires:       facter < 4
+%endif
+
+
 BuildRequires:  hiera >= 2.0
 BuildRequires:  hiera < 4
 
-Requires:       facter >= 2.0
-Requires:       facter < 4
 Requires:       hiera >= 2.0
 Requires:       hiera < 4
 
@@ -396,6 +406,9 @@ exit 0
 rm -rf %{buildroot}
 
 %changelog
+* Tue Nov 07 2017 James Hogarth <james.hogarth@gmail.com> - 4.10.1-3
+- F28 facter3 change means puppet needs to require the ruby bindings for facter
+
 * Thu Jul 27 2017 Fedora Release Engineering <releng@fedoraproject.org> - 4.10.1-2
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_27_Mass_Rebuild
 
