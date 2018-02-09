@@ -19,7 +19,7 @@
 
 Name:           puppet
 Version:        4.10.1
-Release:        3%{?dist}
+Release:        4%{?dist}
 Summary:        A network tool for managing many disparate systems
 License:        ASL 2.0
 URL:            http://puppetlabs.com
@@ -406,6 +406,9 @@ exit 0
 rm -rf %{buildroot}
 
 %changelog
+* Fri Feb 09 2018 Fedora Release Engineering <releng@fedoraproject.org> - 4.10.1-4
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_28_Mass_Rebuild
+
 * Tue Nov 07 2017 James Hogarth <james.hogarth@gmail.com> - 4.10.1-3
 - F28 facter3 change means puppet needs to require the ruby bindings for facter
 
