@@ -36,7 +36,6 @@ Patch04:        0004-PUP-7383-Skip-cipher-monkey-patch-on-ruby-2.4.patch
 Patch06:        0006-Remove-Fedora-release-restrictions-from-DNF-provider.patch
 Group:          System Environment/Base
 
-BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
 BuildRequires:  ruby-devel >= 1.8.7
 # ruby-devel does not require the base package, but requires -libs instead
