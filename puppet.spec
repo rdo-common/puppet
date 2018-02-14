@@ -401,9 +401,6 @@ fi
 %endif
 exit 0
 
-%clean
-rm -rf %{buildroot}
-
 %changelog
 * Fri Feb 09 2018 Fedora Release Engineering <releng@fedoraproject.org> - 4.10.1-4
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_28_Mass_Rebuild
