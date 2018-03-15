@@ -18,8 +18,8 @@
 %global pending_upgrade_file %{pending_upgrade_path}/upgrade_pending
 
 Name:           puppet
-Version:        4.10.1
-Release:        4%{?dist}
+Version:        4.10.10
+Release:        1%{?dist}
 Summary:        A network tool for managing many disparate systems
 License:        ASL 2.0
 URL:            http://puppetlabs.com
@@ -32,7 +32,6 @@ Source4:        start-puppet-wrapper
 # Puppetlabs messed up with default paths
 Patch01:        0001-Fix-puppet-paths.patch
 Patch02:        0002-Revert-maint-Remove-puppetmaster.service.patch
-Patch04:        0004-PUP-7383-Skip-cipher-monkey-patch-on-ruby-2.4.patch
 Patch06:        0006-Remove-Fedora-release-restrictions-from-DNF-provider.patch
 Group:          System Environment/Base
 
@@ -135,7 +134,6 @@ The server can also function as a certificate authority and file server.
 %setup -q
 %patch01 -p1 -b .paths
 %patch02 -p1 -b .server
-%patch04 -p1
 %patch06 -p1
 # Unbundle
 rm -r lib/puppet/vendor/*{pathspec,rgen}*
@@ -150,6 +148,7 @@ ruby install.rb --destdir=%{buildroot} \
      --bindir=%{_bindir} --vardir=%{_localstatedir}/cache/puppet \
      --logdir=%{_localstatedir}/log/puppet \
      --rundir=%{_localstatedir}/log/puppet \
+     --localedir=%{_datadir}/%{name}/locale \
      --quick --no-rdoc --sitelibdir=%{puppet_libdir}
 
 
@@ -284,6 +283,7 @@ mkdir -p %{buildroot}%{_sysconfdir}/%{name}/modules
 %{_mandir}/man8/puppet-facts.8.gz
 %{_mandir}/man8/puppet-file.8.gz
 %{_mandir}/man8/puppet-filebucket.8.gz
+%{_mandir}/man8/puppet-generate.8.gz
 %{_mandir}/man8/puppet-help.8.gz
 %{_mandir}/man8/puppet-inspect.8.gz
 #%{_mandir}/man8/puppet-instrumentation_data.8.gz
@@ -291,6 +291,7 @@ mkdir -p %{buildroot}%{_sysconfdir}/%{name}/modules
 #%{_mandir}/man8/puppet-instrumentation_probe.8.gz
 %{_mandir}/man8/puppet-epp.8.gz
 %{_mandir}/man8/puppet-key.8.gz
+%{_mandir}/man8/puppet-lookup.8.gz
 %{_mandir}/man8/puppet-man.8.gz
 %{_mandir}/man8/puppet-module.8.gz
 %{_mandir}/man8/puppet-node.8.gz
@@ -402,6 +403,9 @@ fi
 exit 0
 
 %changelog
+* Thu Mar 15 2018 Terje Rosten <terje.rosten@ntnu.no> - 4.10.10-1
+- Update to 4.10.10
+
 * Fri Feb 09 2018 Fedora Release Engineering <releng@fedoraproject.org> - 4.10.1-4
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_28_Mass_Rebuild
 
