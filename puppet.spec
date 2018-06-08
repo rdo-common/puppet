@@ -18,7 +18,7 @@
 %global pending_upgrade_file %{pending_upgrade_path}/upgrade_pending
 
 Name:           puppet
-Version:        4.10.10
+Version:        5.5.1
 Release:        1%{?dist}
 Summary:        A network tool for managing many disparate systems
 License:        ASL 2.0
@@ -32,7 +32,7 @@ Source4:        start-puppet-wrapper
 # Puppetlabs messed up with default paths
 Patch01:        0001-Fix-puppet-paths.patch
 Patch02:        0002-Revert-maint-Remove-puppetmaster.service.patch
-Patch06:        0006-Remove-Fedora-release-restrictions-from-DNF-provider.patch
+Patch03:        0003-Remove-Fedora-release-restrictions-from-DNF-provider.patch
 Group:          System Environment/Base
 
 
@@ -91,9 +91,7 @@ Provides:       hiera-puppet = %{version}-%{release}
 
 Requires(pre):  shadow-utils
 %if 0%{?_with_systemd}
-Requires(post): systemd
-Requires(preun): systemd
-Requires(postun): systemd
+%{?systemd_requires}
 BuildRequires: systemd
 %else
 Requires(post): chkconfig
@@ -115,9 +113,7 @@ Group:          System Environment/Base
 Summary:        Server for the puppet system management tool
 Requires:       puppet = %{version}-%{release}
 %if 0%{?_with_systemd}
-Requires(post): systemd
-Requires(preun): systemd
-Requires(postun): systemd
+%{?systemd_requires}
 BuildRequires: systemd
 %else
 Requires(post): chkconfig
@@ -134,9 +130,16 @@ The server can also function as a certificate authority and file server.
 %setup -q
 %patch01 -p1 -b .paths
 %patch02 -p1 -b .server
-%patch06 -p1
+%patch03 -p1
 # Unbundle
-rm -r lib/puppet/vendor/*{pathspec,rgen}*
+rm -r lib/puppet/vendor/pathspec
+# Note(hguemar): remove unrelated OS/distro specific folders
+# These mess-up with RPM automatic dependencies compute by adding
+# unnecessary deps like /sbin/runscripts
+rm -r ext/{debian,freebsd,gentoo,ips,osx,solaris,suse,windows}
+rm ext/redhat/*.init
+rm ext/{build_defaults.yaml,project_data.yaml}
+
 
 %build
 # Nothing to build
@@ -177,6 +180,9 @@ install -Dp -m0644 %{confdir}/fileserver.conf %{buildroot}%{_sysconfdir}/puppet/
 install -Dp -m0644 %{confdir}/puppet.conf %{buildroot}%{_sysconfdir}/puppet/puppet.conf
 install -Dp -m0644 ext/redhat/logrotate %{buildroot}%{_sysconfdir}/logrotate.d/puppet
 
+# Note(hguemar): Conflicts with config file from hiera package
+rm %{buildroot}%{_sysconfdir}/puppet/hiera.yaml
+
 # Install a NetworkManager dispatcher script to pickup changes to
 # /etc/resolv.conf and such (https://bugzilla.redhat.com/532085).
 %if 0%{?_with_systemd}
@@ -190,23 +196,6 @@ install -Dpv %{SOURCE2} \
 # Install the ext/ directory to %%{_datadir}/%%{name}
 install -d %{buildroot}%{_datadir}/%{name}
 cp -a ext/ %{buildroot}%{_datadir}/%{name}
-# emacs and vim bits are installed elsewhere
-rm -rf %{buildroot}%{_datadir}/%{name}/ext/{emacs,vim}
-# remove misc packaging artifacts in source not applicable to rpm
-rm -rf %{buildroot}%{_datadir}/%{name}/ext/{gentoo,freebsd,solaris,suse,windows,osx,ips,debian}
-rm -f %{buildroot}%{_datadir}/%{name}/ext/{build_defaults.yaml,project_data.yaml}
-rm -f %{buildroot}%{_datadir}/%{name}/ext/redhat/*.init
-
-# Install emacs mode files
-emacsdir=%{buildroot}%{_datadir}/emacs/site-lisp
-install -Dp -m0644 ext/emacs/puppet-mode.el $emacsdir/puppet-mode.el
-install -Dp -m0644 ext/emacs/puppet-mode-init.el \
-    $emacsdir/site-start.d/puppet-mode-init.el
-
-# Install vim syntax files
-vimdir=%{buildroot}%{_datadir}/vim/vimfiles
-install -Dp -m0644 ext/vim/ftdetect/puppet.vim $vimdir/ftdetect/puppet.vim
-install -Dp -m0644 ext/vim/syntax/puppet.vim $vimdir/syntax/puppet.vim
 
 # Install wrappers for SELinux
 install -Dp -m0755 %{SOURCE4} %{buildroot}%{_bindir}/start-puppet-agent
@@ -236,7 +225,6 @@ mkdir -p %{buildroot}%{_sysconfdir}/%{name}/modules
 %license LICENSE
 %{_bindir}/puppet
 %{_bindir}/start-puppet-*
-%{_bindir}/extlookup2hiera
 %{puppet_libdir}/*
 %if 0%{?_with_systemd}
 %{_unitdir}/puppet.service
@@ -256,9 +244,6 @@ mkdir -p %{buildroot}%{_sysconfdir}/%{name}/modules
 %dir %{_sysconfdir}/NetworkManager
 %dir %{_sysconfdir}/NetworkManager/dispatcher.d
 %{_sysconfdir}/NetworkManager/dispatcher.d/98-puppet
-# We don't want to require emacs or vim, so we need to own these dirs
-%{_datadir}/emacs
-%{_datadir}/vim
 %{_datadir}/%{name}
 # These need to be owned by puppet so the server can
 # write to them
@@ -281,11 +266,9 @@ mkdir -p %{buildroot}%{_sysconfdir}/%{name}/modules
 %{_mandir}/man8/puppet-device.8.gz
 %{_mandir}/man8/puppet-doc.8.gz
 %{_mandir}/man8/puppet-facts.8.gz
-%{_mandir}/man8/puppet-file.8.gz
 %{_mandir}/man8/puppet-filebucket.8.gz
 %{_mandir}/man8/puppet-generate.8.gz
 %{_mandir}/man8/puppet-help.8.gz
-%{_mandir}/man8/puppet-inspect.8.gz
 #%{_mandir}/man8/puppet-instrumentation_data.8.gz
 #%{_mandir}/man8/puppet-instrumentation_listener.8.gz
 #%{_mandir}/man8/puppet-instrumentation_probe.8.gz
@@ -299,10 +282,9 @@ mkdir -p %{buildroot}%{_sysconfdir}/%{name}/modules
 %{_mandir}/man8/puppet-plugin.8.gz
 %{_mandir}/man8/puppet-report.8.gz
 %{_mandir}/man8/puppet-resource.8.gz
-%{_mandir}/man8/puppet-resource_type.8.gz
 #%{_mandir}/man8/puppet-secret_agent.8.gz
+%{_mandir}/man8/puppet-script.8.gz
 %{_mandir}/man8/puppet-status.8.gz
-%{_mandir}/man8/extlookup2hiera.8.gz
 
 %files server
 %defattr(-, root, root, 0755)
@@ -403,6 +385,12 @@ fi
 exit 0
 
 %changelog
+* Tue May  8 2018 Haïkel Guémar <hguemar@fedoraproject.org> - 5.5.1-1
+- Upstream 5.5.1
+- Unmaintained editor extensions were removed upstream (PUP-7558)
+- Deprecated commands were removed: inspect (PUP-893), extlookup2hiera (PUP-3478)
+- Refreshed patches
+
 * Thu Mar 15 2018 Terje Rosten <terje.rosten@ntnu.no> - 4.10.10-1
 - Update to 4.10.10
 

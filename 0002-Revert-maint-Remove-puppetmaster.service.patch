@@ -1,7 +1,7 @@
-From f3d931b6c68e4305ce612949ec59dca460e578d7 Mon Sep 17 00:00:00 2001
+From fc00c9d0c99e977cda8bb4a9a89952dfae5523dc Mon Sep 17 00:00:00 2001
 From: Gael Chamoulaud <gchamoul@redhat.com>
 Date: Wed, 29 Jul 2015 21:58:48 +0200
-Subject: [PATCH] Revert "(maint) Remove puppetmaster.service"
+Subject: [PATCH 2/3] Revert "(maint) Remove puppetmaster.service"
 
 This reverts commit c0e30daa53b6267c1c86b6e27c01b1c26cf49af5.
 ---
@@ -11,10 +11,10 @@ This reverts commit c0e30daa53b6267c1c86b6e27c01b1c26cf49af5.
  create mode 100644 ext/systemd/puppetmaster.service
 
 diff --git a/ext/systemd/puppet.service b/ext/systemd/puppet.service
-index 61b0313..c7f063e 100644
+index 7c16615..36769ac 100644
 --- a/ext/systemd/puppet.service
 +++ b/ext/systemd/puppet.service
-@@ -1,7 +1,7 @@
+@@ -11,7 +11,7 @@
  [Unit]
  Description=Puppet agent
  Wants=basic.target
@@ -42,5 +42,5 @@ index 0000000..dbbd627
 +[Install]
 +WantedBy=multi-user.target
 -- 
-2.4.3
+2.17.1
 
