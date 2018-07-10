@@ -220,7 +220,6 @@ mkdir -p %{buildroot}%{_sysconfdir}/%{name}/modules
 
 
 %files
-%defattr(-, root, root, 0755)
 %doc README.md examples
 %license LICENSE
 %{_bindir}/puppet
@@ -287,7 +286,6 @@ mkdir -p %{buildroot}%{_sysconfdir}/%{name}/modules
 %{_mandir}/man8/puppet-status.8.gz
 
 %files server
-%defattr(-, root, root, 0755)
 %if 0%{?_with_systemd}
 %{_unitdir}/puppetmaster.service
 %else
