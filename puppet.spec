@@ -19,7 +19,7 @@
 
 Name:           puppet
 Version:        5.5.1
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        A network tool for managing many disparate systems
 License:        ASL 2.0
 URL:            http://puppetlabs.com
@@ -383,6 +383,9 @@ fi
 exit 0
 
 %changelog
+* Fri Jul 13 2018 Fedora Release Engineering <releng@fedoraproject.org> - 5.5.1-2
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_29_Mass_Rebuild
+
 * Tue May  8 2018 Haïkel Guémar <hguemar@fedoraproject.org> - 5.5.1-1
 - Upstream 5.5.1
 - Unmaintained editor extensions were removed upstream (PUP-7558)
