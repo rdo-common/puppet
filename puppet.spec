@@ -13,6 +13,13 @@
 %global _with_systemd 1
 %endif
 
+# FIXME(hguemar): RH products builds of facter and hiera have introduced epochs
+# does not impact Fedora nor EPEL
+%if 0%{?rhel} && 0%{?rhel} >= 7 && !0%{?epel}
+%global has_epoch 1
+%endif
+
+
 %global confdir         conf
 %global pending_upgrade_path %{_localstatedir}/lib/rpm-state/puppet
 %global pending_upgrade_file %{pending_upgrade_path}/upgrade_pending
@@ -71,18 +78,18 @@ BuildRequires:  ruby-facter < 4
 Requires:       ruby-facter >= 3.0
 Requires:       ruby-facter < 4
 %else
-BuildRequires:  facter >= 2.0
-BuildRequires:  facter < 4
-Requires:       facter >= 2.0
-Requires:       facter < 4
+BuildRequires:  facter >= %{?has_epoch:1:}2.0
+BuildRequires:  facter < %{?has_epoch:1:}4
+Requires:       facter >= %{?has_epoch:1:}2.0
+Requires:       facter < %{?has_epoch:1:}4
 %endif
 
 
 BuildRequires:  hiera >= 2.0
-BuildRequires:  hiera < 4
+BuildRequires:  hiera < %{?has_epoch:1:}4
 
 Requires:       hiera >= 2.0
-Requires:       hiera < 4
+Requires:       hiera < %{?has_epoch:1:}4
 
 Obsoletes:      hiera-puppet < 1.0.0-2
 Provides:       hiera-puppet = %{version}-%{release}
