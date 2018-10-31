@@ -25,8 +25,8 @@
 %global pending_upgrade_file %{pending_upgrade_path}/upgrade_pending
 
 Name:           puppet
-Version:        5.5.1
-Release:        2%{?dist}
+Version:        5.5.6
+Release:        1%{?dist}
 Summary:        A network tool for managing many disparate systems
 License:        ASL 2.0
 URL:            http://puppetlabs.com
@@ -40,6 +40,12 @@ Source4:        start-puppet-wrapper
 Patch01:        0001-Fix-puppet-paths.patch
 Patch02:        0002-Revert-maint-Remove-puppetmaster.service.patch
 Patch03:        0003-Remove-Fedora-release-restrictions-from-DNF-provider.patch
+# Note: Puppet 5.5.7 is broken
+# Backporting patches that add supports for RHEL > 7
+# https://github.com/puppetlabs/puppet/pull/7000 (PUP-9069)
+Patch04:        7000.patch
+# https://github.com/puppetlabs/puppet/pull/7140 (PUP-9198)
+Patch05:        7140.patch
 Group:          System Environment/Base
 
 
@@ -390,6 +396,10 @@ fi
 exit 0
 
 %changelog
+* Wed Oct 31 2018 Haïkel Guémar <hguemar@fedoraproject.org> - 5.5.6-1
+- Upstream 5.5.6
+- Fix issues with RHEL > 7
+
 * Fri Jul 13 2018 Fedora Release Engineering <releng@fedoraproject.org> - 5.5.1-2
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_29_Mass_Rebuild
 
