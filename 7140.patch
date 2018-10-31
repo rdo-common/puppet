@@ -1,0 +1,49 @@
+From 7ae809e1eaa826082c9f587f8741ea50f5246034 Mon Sep 17 00:00:00 2001
+From: Alex Schultz <aschultz@redhat.com>
+Date: Wed, 3 Oct 2018 12:55:30 -0600
+Subject: [PATCH] (PUP-9198) Add RHEL8 support in the dnf provider
+
+dnf should be the default for RHEL8
+---
+ lib/puppet/provider/package/dnf.rb     |  1 +
+ spec/unit/provider/package/dnf_spec.rb | 15 +++++++++++++++
+ 2 files changed, 16 insertions(+)
+
+diff --git a/lib/puppet/provider/package/dnf.rb b/lib/puppet/provider/package/dnf.rb
+index 535aa6c6d7f..4823ebfd523 100644
+--- a/lib/puppet/provider/package/dnf.rb
++++ b/lib/puppet/provider/package/dnf.rb
+@@ -29,6 +29,7 @@
+   end
+ 
+   defaultfor :operatingsystem => :fedora, :operatingsystemmajrelease => (22..30).to_a
++  defaultfor :osfamily => :redhat, :operatingsystemmajrelease => ["8"]
+ 
+   def self.update_command
+     # In DNF, update is deprecated for upgrade
+diff --git a/spec/unit/provider/package/dnf_spec.rb b/spec/unit/provider/package/dnf_spec.rb
+index 5e57337f500..40345dcde6e 100644
+--- a/spec/unit/provider/package/dnf_spec.rb
++++ b/spec/unit/provider/package/dnf_spec.rb
+@@ -23,6 +23,21 @@
+       expect(provider_class).to be_default
+     end
+   end
++
++  it "should not be the default provider on rhel7" do
++      Facter.stubs(:value).with(:osfamily).returns(:redhat)
++      Facter.stubs(:value).with(:operatingsystem).returns(:redhat)
++      Facter.stubs(:value).with(:operatingsystemmajrelease).returns("7")
++      expect(provider_class).to_not be_default
++  end
++
++  it "should be the default provider on rhel8" do
++      Facter.stubs(:value).with(:osfamily).returns(:redhat)
++      Facter.stubs(:value).with(:operatingsystem).returns(:redhat)
++      Facter.stubs(:value).with(:operatingsystemmajrelease).returns("8")
++      expect(provider_class).to be_default
++  end
++
+ end
+ 
+ describe provider_class do
