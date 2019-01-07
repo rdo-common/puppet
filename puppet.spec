@@ -43,12 +43,12 @@ Patch03:        0003-Remove-Fedora-release-restrictions-from-DNF-provider.patch
 # Note: Puppet 5.5.7 is broken
 # Backporting patches that add supports for RHEL > 7
 # https://github.com/puppetlabs/puppet/pull/7000 (PUP-9069)
-Patch04:        7000.patch
+Patch04:        0004-PUP-9069-Add-support-for-RHEL8.patch
 # https://github.com/puppetlabs/puppet/pull/7140 (PUP-9198)
-Patch05:        7140.patch
+Patch05:        0005-PUP-9198-Add-RHEL8-support-in-the-dnf-provider.patch
 Group:          System Environment/Base
 
-
+BuildRequires:  git
 BuildRequires:  ruby-devel >= 1.8.7
 # ruby-devel does not require the base package, but requires -libs instead
 BuildRequires:  ruby >= 1.8.7
@@ -140,12 +140,7 @@ Provides the central puppet server daemon which provides manifests to clients.
 The server can also function as a certificate authority and file server.
 
 %prep
-%setup -q
-%patch01 -p1 -b .paths
-%patch02 -p1 -b .server
-%patch03 -p1
-%patch04 -p1
-%patch05 -p1
+%autosetup -S git
 # Unbundle
 rm -r lib/puppet/vendor/pathspec
 # Note(hguemar): remove unrelated OS/distro specific folders

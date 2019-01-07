@@ -1,7 +1,7 @@
-From 320d9dd4a87266d40c5b73d6e020bb77ca4e4d9b Mon Sep 17 00:00:00 2001
+From 5688991cd78f7c38a1edf28f76e9b7825a7d415a Mon Sep 17 00:00:00 2001
 From: Dominic Cleal <dominic@cleal.org>
 Date: Wed, 31 May 2017 10:07:04 +0100
-Subject: [PATCH 3/3] Remove Fedora release restrictions from DNF provider
+Subject: [PATCH 3/5] Remove Fedora release restrictions from DNF provider
 
 Ensure DNF provider will be used on all versions of Fedora, without new
 ones being excluded.
@@ -23,5 +23,5 @@ index 535aa6c..c0ed877 100644
    def self.update_command
      # In DNF, update is deprecated for upgrade
 -- 
-2.17.1
+2.19.2
 

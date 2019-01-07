@@ -1,7 +1,7 @@
-From fc00c9d0c99e977cda8bb4a9a89952dfae5523dc Mon Sep 17 00:00:00 2001
+From f54a22b96e9e631991bad095a7b321273a2e6e3f Mon Sep 17 00:00:00 2001
 From: Gael Chamoulaud <gchamoul@redhat.com>
 Date: Wed, 29 Jul 2015 21:58:48 +0200
-Subject: [PATCH 2/3] Revert "(maint) Remove puppetmaster.service"
+Subject: [PATCH 2/5] Revert "(maint) Remove puppetmaster.service"
 
 This reverts commit c0e30daa53b6267c1c86b6e27c01b1c26cf49af5.
 ---
@@ -42,5 +42,5 @@ index 0000000..dbbd627
 +[Install]
 +WantedBy=multi-user.target
 -- 
-2.17.1
+2.19.2
 
