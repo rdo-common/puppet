@@ -26,7 +26,7 @@
 
 Name:           puppet
 Version:        5.5.6
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        A network tool for managing many disparate systems
 License:        ASL 2.0
 URL:            http://puppetlabs.com
@@ -144,6 +144,8 @@ The server can also function as a certificate authority and file server.
 %patch01 -p1 -b .paths
 %patch02 -p1 -b .server
 %patch03 -p1
+%patch04 -p1
+%patch05 -p1
 # Unbundle
 rm -r lib/puppet/vendor/pathspec
 # Note(hguemar): remove unrelated OS/distro specific folders
