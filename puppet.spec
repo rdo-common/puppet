@@ -26,7 +26,7 @@
 
 Name:           puppet
 Version:        5.5.6
-Release:        2%{?dist}
+Release:        3%{?dist}
 Summary:        A network tool for managing many disparate systems
 License:        ASL 2.0
 URL:            http://puppetlabs.com
@@ -278,9 +278,9 @@ mkdir -p %{buildroot}%{_sysconfdir}/%{name}/modules
 %{_mandir}/man8/puppet-filebucket.8.gz
 %{_mandir}/man8/puppet-generate.8.gz
 %{_mandir}/man8/puppet-help.8.gz
-#%{_mandir}/man8/puppet-instrumentation_data.8.gz
-#%{_mandir}/man8/puppet-instrumentation_listener.8.gz
-#%{_mandir}/man8/puppet-instrumentation_probe.8.gz
+#{_mandir}/man8/puppet-instrumentation_data.8.gz
+#{_mandir}/man8/puppet-instrumentation_listener.8.gz
+#{_mandir}/man8/puppet-instrumentation_probe.8.gz
 %{_mandir}/man8/puppet-epp.8.gz
 %{_mandir}/man8/puppet-key.8.gz
 %{_mandir}/man8/puppet-lookup.8.gz
@@ -291,7 +291,7 @@ mkdir -p %{buildroot}%{_sysconfdir}/%{name}/modules
 %{_mandir}/man8/puppet-plugin.8.gz
 %{_mandir}/man8/puppet-report.8.gz
 %{_mandir}/man8/puppet-resource.8.gz
-#%{_mandir}/man8/puppet-secret_agent.8.gz
+#{_mandir}/man8/puppet-secret_agent.8.gz
 %{_mandir}/man8/puppet-script.8.gz
 %{_mandir}/man8/puppet-status.8.gz
 
@@ -305,9 +305,9 @@ mkdir -p %{buildroot}%{_sysconfdir}/%{name}/modules
 %endif
 %config(noreplace) %{_sysconfdir}/puppet/fileserver.conf
 %dir %{_sysconfdir}/puppet/manifests
-#%{_mandir}/man8/puppet-kick.8.gz
+#{_mandir}/man8/puppet-kick.8.gz
 %{_mandir}/man8/puppet-master.8.gz
-#%{_mandir}/man8/puppet-queue.8.gz
+#{_mandir}/man8/puppet-queue.8.gz
 
 # Fixed uid/gid were assigned in bz 472073 (Fedora), 471918 (RHEL-5),
 # and 471919 (RHEL-4)
@@ -393,6 +393,9 @@ fi
 exit 0
 
 %changelog
+* Tue Jan 22 2019 Bogdan Dobrelya <bdobreli@redhat.com> - 5.5.6-3
+- Use systemd_ordering macro
+
 * Wed Oct 31 2018 Haïkel Guémar <hguemar@fedoraproject.org> - 5.5.6-1
 - Upstream 5.5.6
 - Fix issues with RHEL > 7
