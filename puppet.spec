@@ -46,7 +46,6 @@ Patch03:        0003-Remove-Fedora-release-restrictions-from-DNF-provider.patch
 Patch04:        0004-PUP-9069-Add-support-for-RHEL8.patch
 # https://github.com/puppetlabs/puppet/pull/7140 (PUP-9198)
 Patch05:        0005-PUP-9198-Add-RHEL8-support-in-the-dnf-provider.patch
-Group:          System Environment/Base
 
 BuildRequires:  git
 BuildRequires:  ruby-devel >= 1.8.7
@@ -122,7 +121,6 @@ normally aggregated in different files, like users, cron jobs, and hosts,
 along with obviously discrete elements like packages, services, and files.
 
 %package server
-Group:          System Environment/Base
 Summary:        Server for the puppet system management tool
 Requires:       puppet = %{version}-%{release}
 %if 0%{?_with_systemd}
