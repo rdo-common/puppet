@@ -26,7 +26,7 @@
 
 Name:           puppet
 Version:        5.5.6
-Release:        3%{?dist}
+Release:        4%{?dist}
 Summary:        A network tool for managing many disparate systems
 License:        ASL 2.0
 URL:            http://puppetlabs.com
@@ -391,6 +391,9 @@ fi
 exit 0
 
 %changelog
+* Sat Feb 02 2019 Fedora Release Engineering <releng@fedoraproject.org> - 5.5.6-4
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_30_Mass_Rebuild
+
 * Tue Jan 22 2019 Bogdan Dobrelya <bdobreli@redhat.com> - 5.5.6-3
 - Use systemd_ordering macro
 
