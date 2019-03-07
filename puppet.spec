@@ -26,7 +26,7 @@
 
 Name:           puppet
 Version:        5.5.6
-Release:        5%{?dist}
+Release:        6%{?dist}
 Summary:        A network tool for managing many disparate systems
 License:        ASL 2.0
 URL:            http://puppetlabs.com
@@ -59,6 +59,7 @@ Requires:       ruby(abi) = 1.8
 Requires:       ruby(release)
 %endif
 
+Requires:       puppet-headless = %{version}-%{release}
 Requires:       ruby(shadow)
 Requires:       rubygem(json)
 Requires:       rubygem(pathspec)
@@ -123,6 +124,7 @@ along with obviously discrete elements like packages, services, and files.
 %package server
 Summary:        Server for the puppet system management tool
 Requires:       puppet = %{version}-%{release}
+Requires:       puppet-headless = %{version}-%{release}
 %if 0%{?_with_systemd}
 %{?systemd_requires}
 BuildRequires: systemd
@@ -136,6 +138,14 @@ Requires(postun): initscripts
 %description server
 Provides the central puppet server daemon which provides manifests to clients.
 The server can also function as a certificate authority and file server.
+
+%package headless
+Summary:        Headless Puppet
+Conflicts:      puppet < 5.5.6-6
+%description headless
+This puppet headless subpackage may be used when there is no need to
+have puppet agent running as a service, for example, in a container
+image.
 
 %prep
 %autosetup -S git
@@ -228,11 +238,6 @@ mkdir -p %{buildroot}%{_sysconfdir}/%{name}/modules
 
 
 %files
-%doc README.md examples
-%license LICENSE
-%{_bindir}/puppet
-%{_bindir}/start-puppet-*
-%{puppet_libdir}/*
 %if 0%{?_with_systemd}
 %{_unitdir}/puppet.service
 %{_unitdir}/puppetagent.service
@@ -245,12 +250,19 @@ mkdir -p %{buildroot}%{_sysconfdir}/%{name}/modules
 %if 0%{?fedora} >= 15
 %{_tmpfilesdir}/%{name}.conf
 %endif
-%config(noreplace) %{_sysconfdir}/puppet/puppet.conf
-%config(noreplace) %{_sysconfdir}/puppet/auth.conf
 %config(noreplace) %{_sysconfdir}/logrotate.d/puppet
 %dir %{_sysconfdir}/NetworkManager
 %dir %{_sysconfdir}/NetworkManager/dispatcher.d
 %{_sysconfdir}/NetworkManager/dispatcher.d/98-puppet
+
+%files headless
+%doc README.md examples
+%license LICENSE
+%{_bindir}/puppet
+%{_bindir}/start-puppet-*
+%{puppet_libdir}/*
+%config(noreplace) %{_sysconfdir}/puppet/puppet.conf
+%config(noreplace) %{_sysconfdir}/puppet/auth.conf
 %{_datadir}/%{name}
 # These need to be owned by puppet so the server can
 # write to them
@@ -309,7 +321,7 @@ mkdir -p %{buildroot}%{_sysconfdir}/%{name}/modules
 
 # Fixed uid/gid were assigned in bz 472073 (Fedora), 471918 (RHEL-5),
 # and 471919 (RHEL-4)
-%pre
+%pre headless
 getent group puppet &>/dev/null || groupadd -r puppet -g 52 &>/dev/null
 getent passwd puppet &>/dev/null || \
 useradd -r -u 52 -g puppet -d %{_localstatedir}/lib/puppet -s /sbin/nologin \
@@ -391,6 +403,9 @@ fi
 exit 0
 
 %changelog
+* Thu Mar 07 2019 Terje Rosten <terje.rosten@ntnu.no> - 5.5.6-6
+- Split off headless subpackage, based on idea from Bogdan Dobrelya
+
 * Sun Feb 17 2019 Bogdan Dobrelya <bdobreli@redhat.com> - 5.5.6-5
 - Revert use of systemd_ordering macro
 
