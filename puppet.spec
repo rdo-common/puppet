@@ -25,8 +25,8 @@
 %global pending_upgrade_file %{pending_upgrade_path}/upgrade_pending
 
 Name:           puppet
-Version:        5.5.6
-Release:        6%{?dist}
+Version:        5.5.10
+Release:        1%{?dist}
 Summary:        A network tool for managing many disparate systems
 License:        ASL 2.0
 URL:            http://puppetlabs.com
@@ -44,8 +44,6 @@ Patch03:        0003-Remove-Fedora-release-restrictions-from-DNF-provider.patch
 # Backporting patches that add supports for RHEL > 7
 # https://github.com/puppetlabs/puppet/pull/7000 (PUP-9069)
 Patch04:        0004-PUP-9069-Add-support-for-RHEL8.patch
-# https://github.com/puppetlabs/puppet/pull/7140 (PUP-9198)
-Patch05:        0005-PUP-9198-Add-RHEL8-support-in-the-dnf-provider.patch
 
 BuildRequires:  git
 BuildRequires:  ruby-devel >= 1.8.7
@@ -403,6 +401,9 @@ fi
 exit 0
 
 %changelog
+* Thu Mar 07 2019 Terje Rosten <terje.rosten@ntnu.no> - 5.5.10-1
+- 5.5.10
+
 * Thu Mar 07 2019 Terje Rosten <terje.rosten@ntnu.no> - 5.5.6-6
 - Split off headless subpackage, based on idea from Bogdan Dobrelya
 
