@@ -25,7 +25,7 @@
 
 Name:           puppet
 Version:        5.5.10
-Release:        2%{?dist}
+Release:        3%{?dist}
 Summary:        A network tool for managing many disparate systems
 License:        ASL 2.0
 URL:            http://puppetlabs.com
@@ -235,8 +235,6 @@ mkdir -p %{buildroot}%{_sysconfdir}/%{name}/modules
 %{_initrddir}/puppet
 %config(noreplace) %{_sysconfdir}/sysconfig/puppet
 %endif
-%dir %{_sysconfdir}/puppet
-%dir %{_sysconfdir}/%{name}/modules
 %if 0%{?fedora} >= 15
 %{_tmpfilesdir}/%{name}.conf
 %endif
@@ -251,6 +249,8 @@ mkdir -p %{buildroot}%{_sysconfdir}/%{name}/modules
 %{_bindir}/puppet
 %{_bindir}/start-puppet-*
 %{puppet_libdir}/*
+%dir %{_sysconfdir}/puppet
+%dir %{_sysconfdir}/%{name}/modules
 %config(noreplace) %{_sysconfdir}/puppet/puppet.conf
 %config(noreplace) %{_sysconfdir}/puppet/auth.conf
 %{_datadir}/%{name}
@@ -393,6 +393,9 @@ fi
 exit 0
 
 %changelog
+* Thu Mar 07 2019 Terje Rosten <terje.rosten@ntnu.no> - 5.5.10-3
+- Move sysconfdirs to headless too
+
 * Thu Mar 07 2019 Terje Rosten <terje.rosten@ntnu.no> - 5.5.10-2
 - Move reqs to headless
 
