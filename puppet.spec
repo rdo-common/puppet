@@ -19,14 +19,13 @@
 %global has_epoch 1
 %endif
 
-
 %global confdir         conf
 %global pending_upgrade_path %{_localstatedir}/lib/rpm-state/puppet
 %global pending_upgrade_file %{pending_upgrade_path}/upgrade_pending
 
 Name:           puppet
 Version:        5.5.10
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        A network tool for managing many disparate systems
 License:        ASL 2.0
 URL:            http://puppetlabs.com
@@ -45,62 +44,14 @@ Patch03:        0003-Remove-Fedora-release-restrictions-from-DNF-provider.patch
 # https://github.com/puppetlabs/puppet/pull/7000 (PUP-9069)
 Patch04:        0004-PUP-9069-Add-support-for-RHEL8.patch
 
+BuildArch:      noarch
 BuildRequires:  git
 BuildRequires:  ruby-devel >= 1.8.7
 # ruby-devel does not require the base package, but requires -libs instead
 BuildRequires:  ruby >= 1.8.7
 
-BuildArch:      noarch
-%if 0%{?rhel} && 0%{?rhel} <= 6
-Requires:       ruby(abi) = 1.8
-%else
-Requires:       ruby(release)
-%endif
-
 Requires:       puppet-headless = %{version}-%{release}
-Requires:       ruby(shadow)
-Requires:       rubygem(json)
-Requires:       rubygem(pathspec)
-Requires:       rubygem(rgen)
 
-# Prevents jruby from being pulled in by dependencies (BZ #985208)
-Requires:       ruby
-
-# Pull in ruby selinux bindings where available
-%if 0%{?fedora} || 0%{?rhel} >= 6
-%{!?_without_selinux:Requires: ruby(selinux), libselinux-utils}
-%else
-%if 0%{?rhel} && 0%{?rhel} == 5
-%{!?_without_selinux:Requires: libselinux-ruby, libselinux-utils}
-%endif
-%endif
-
-# Fedora 28 updates to facter3 where puppet needs to require the ruby bindings specifically
-%if 0%{?fedora} >= 28
-BuildRequires:  ruby-facter >= 3.0
-BuildRequires:  ruby-facter < 4
-Requires:       ruby-facter >= 3.0
-Requires:       ruby-facter < 4
-%else
-BuildRequires:  facter >= %{?has_epoch:1:}2.0
-BuildRequires:  facter < %{?has_epoch:1:}4
-Requires:       facter >= %{?has_epoch:1:}2.0
-Requires:       facter < %{?has_epoch:1:}4
-%endif
-
-
-BuildRequires:  hiera >= 2.0
-BuildRequires:  hiera < %{?has_epoch:1:}4
-
-Requires:       hiera >= 2.0
-Requires:       hiera < %{?has_epoch:1:}4
-
-Obsoletes:      hiera-puppet < 1.0.0-2
-Provides:       hiera-puppet = %{version}-%{release}
-
-%{!?_without_augeas:Requires: ruby(augeas)}
-
-Requires(pre):  shadow-utils
 %if 0%{?_with_systemd}
 %{?systemd_requires}
 BuildRequires: systemd
@@ -110,8 +61,6 @@ Requires(preun): chkconfig
 Requires(preun): initscripts
 Requires(postun): initscripts
 %endif
-
-Requires: tar
 
 %description
 Puppet lets you centrally manage every important aspect of your system using a
@@ -140,6 +89,49 @@ The server can also function as a certificate authority and file server.
 %package headless
 Summary:        Headless Puppet
 Conflicts:      puppet < 5.5.6-6
+%if 0%{?rhel} && 0%{?rhel} <= 6
+Requires:       ruby(abi) = 1.8
+%else
+Requires:       ruby(release)
+%endif
+Requires:       ruby(shadow)
+Requires:       rubygem(json)
+Requires:       rubygem(pathspec)
+Requires:       rubygem(rgen)
+# Prevents jruby from being pulled in by dependencies (BZ #985208)
+Requires:       ruby
+# Pull in ruby selinux bindings where available
+%if 0%{?fedora} || 0%{?rhel} >= 6
+%{!?_without_selinux:Requires: ruby(selinux), libselinux-utils}
+%else
+%if 0%{?rhel} && 0%{?rhel} == 5
+%{!?_without_selinux:Requires: libselinux-ruby, libselinux-utils}
+%endif
+%endif
+
+# Fedora 28 updates to facter3 where puppet needs to require the ruby bindings specifically
+%if 0%{?fedora} >= 28
+BuildRequires:  ruby-facter >= 3.0
+BuildRequires:  ruby-facter < 4
+Requires:       ruby-facter >= 3.0
+Requires:       ruby-facter < 4
+%else
+BuildRequires:  facter >= %{?has_epoch:1:}2.0
+BuildRequires:  facter < %{?has_epoch:1:}4
+Requires:       facter >= %{?has_epoch:1:}2.0
+Requires:       facter < %{?has_epoch:1:}4
+%endif
+BuildRequires:  hiera >= 2.0
+BuildRequires:  hiera < %{?has_epoch:1:}4
+Requires:       hiera >= 2.0
+Requires:       hiera < %{?has_epoch:1:}4
+Obsoletes:      hiera-puppet < 1.0.0-2
+Provides:       hiera-puppet = %{version}-%{release}
+
+%{!?_without_augeas:Requires: ruby(augeas)}
+Requires:       tar
+Requires(pre):  shadow-utils
+
 %description headless
 This puppet headless subpackage may be used when there is no need to
 have puppet agent running as a service, for example, in a container
@@ -401,6 +393,9 @@ fi
 exit 0
 
 %changelog
+* Thu Mar 07 2019 Terje Rosten <terje.rosten@ntnu.no> - 5.5.10-2
+- Move reqs to headless
+
 * Thu Mar 07 2019 Terje Rosten <terje.rosten@ntnu.no> - 5.5.10-1
 - 5.5.10
 
