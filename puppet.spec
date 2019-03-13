@@ -25,7 +25,7 @@
 
 Name:           puppet
 Version:        5.5.10
-Release:        3%{?dist}
+Release:        4%{?dist}
 Summary:        A network tool for managing many disparate systems
 License:        ASL 2.0
 URL:            http://puppetlabs.com
@@ -101,13 +101,7 @@ Requires:       rubygem(rgen)
 # Prevents jruby from being pulled in by dependencies (BZ #985208)
 Requires:       ruby
 # Pull in ruby selinux bindings where available
-%if 0%{?fedora} || 0%{?rhel} >= 6
 %{!?_without_selinux:Requires: ruby(selinux), libselinux-utils}
-%else
-%if 0%{?rhel} && 0%{?rhel} == 5
-%{!?_without_selinux:Requires: libselinux-ruby, libselinux-utils}
-%endif
-%endif
 
 # Fedora 28 updates to facter3 where puppet needs to require the ruby bindings specifically
 %if 0%{?fedora} >= 28
@@ -194,16 +188,18 @@ rm %{buildroot}%{_sysconfdir}/puppet/hiera.yaml
 # Install a NetworkManager dispatcher script to pickup changes to
 # /etc/resolv.conf and such (https://bugzilla.redhat.com/532085).
 %if 0%{?_with_systemd}
-install -Dpv %{SOURCE3} \
+install -Dpv -m0755 %{SOURCE3} \
     %{buildroot}%{_sysconfdir}/NetworkManager/dispatcher.d/98-%{name}
 %else
-install -Dpv %{SOURCE2} \
+install -Dpv -m0755 %{SOURCE2} \
     %{buildroot}%{_sysconfdir}/NetworkManager/dispatcher.d/98-%{name}
 %endif
 
 # Install the ext/ directory to %%{_datadir}/%%{name}
 install -d %{buildroot}%{_datadir}/%{name}
 cp -a ext/ %{buildroot}%{_datadir}/%{name}
+
+chmod 0755 %{buildroot}%{_datadir}/%{name}/ext/regexp_nodes/regexp_nodes.rb
 
 # Install wrappers for SELinux
 install -Dp -m0755 %{SOURCE4} %{buildroot}%{_bindir}/start-puppet-agent
@@ -278,9 +274,6 @@ mkdir -p %{buildroot}%{_sysconfdir}/%{name}/modules
 %{_mandir}/man8/puppet-filebucket.8.gz
 %{_mandir}/man8/puppet-generate.8.gz
 %{_mandir}/man8/puppet-help.8.gz
-#{_mandir}/man8/puppet-instrumentation_data.8.gz
-#{_mandir}/man8/puppet-instrumentation_listener.8.gz
-#{_mandir}/man8/puppet-instrumentation_probe.8.gz
 %{_mandir}/man8/puppet-epp.8.gz
 %{_mandir}/man8/puppet-key.8.gz
 %{_mandir}/man8/puppet-lookup.8.gz
@@ -291,7 +284,6 @@ mkdir -p %{buildroot}%{_sysconfdir}/%{name}/modules
 %{_mandir}/man8/puppet-plugin.8.gz
 %{_mandir}/man8/puppet-report.8.gz
 %{_mandir}/man8/puppet-resource.8.gz
-#{_mandir}/man8/puppet-secret_agent.8.gz
 %{_mandir}/man8/puppet-script.8.gz
 %{_mandir}/man8/puppet-status.8.gz
 
@@ -305,9 +297,7 @@ mkdir -p %{buildroot}%{_sysconfdir}/%{name}/modules
 %endif
 %config(noreplace) %{_sysconfdir}/puppet/fileserver.conf
 %dir %{_sysconfdir}/puppet/manifests
-#{_mandir}/man8/puppet-kick.8.gz
 %{_mandir}/man8/puppet-master.8.gz
-#{_mandir}/man8/puppet-queue.8.gz
 
 # Fixed uid/gid were assigned in bz 472073 (Fedora), 471918 (RHEL-5),
 # and 471919 (RHEL-4)
@@ -393,6 +383,9 @@ fi
 exit 0
 
 %changelog
+* Wed Mar 13 2019 Terje Rosten <terje.rosten@ntnu.no> - 5.5.10-4
+- Minor clean up
+
 * Thu Mar 07 2019 Terje Rosten <terje.rosten@ntnu.no> - 5.5.10-3
 - Move sysconfdirs to headless too
 
