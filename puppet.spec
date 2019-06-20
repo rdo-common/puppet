@@ -25,7 +25,7 @@
 
 Name:           puppet
 Version:        5.5.10
-Release:        4%{?dist}
+Release:        5%{?dist}
 Summary:        A network tool for managing many disparate systems
 License:        ASL 2.0
 URL:            http://puppetlabs.com
@@ -104,11 +104,12 @@ Requires:       ruby
 %{!?_without_selinux:Requires: ruby(selinux), libselinux-utils}
 
 # Fedora 28 updates to facter3 where puppet needs to require the ruby bindings specifically
-%if 0%{?fedora} >= 28
-BuildRequires:  ruby-facter >= 3.0
-BuildRequires:  ruby-facter < 4
-Requires:       ruby-facter >= 3.0
-Requires:       ruby-facter < 4
+# (RDO) in RDO we are also updating to facter3 for CentOS >= 7
+%if 0%{?fedora} >= 28 || 0%{?rhel} >= 7
+BuildRequires:  ruby-facter >= %{?has_epoch:1:}3.0
+BuildRequires:  ruby-facter < %{?has_epoch:1:}4
+Requires:       ruby-facter >= %{?has_epoch:1:}3.0
+Requires:       ruby-facter < %{?has_epoch:1:}4
 %else
 BuildRequires:  facter >= %{?has_epoch:1:}2.0
 BuildRequires:  facter < %{?has_epoch:1:}4
@@ -383,6 +384,9 @@ fi
 exit 0
 
 %changelog
+* Thu Jun 20 2019 Alfredo Moralejo <amoralej@redhat.com> - 5.5.10-5
+- Add support for facter-3 for EL >= 7.
+
 * Wed Mar 13 2019 Terje Rosten <terje.rosten@ntnu.no> - 5.5.10-4
 - Minor clean up
 
