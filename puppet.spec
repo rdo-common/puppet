@@ -19,7 +19,7 @@
 
 Name:           puppet
 Version:        4.8.2
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        A network tool for managing many disparate systems
 License:        ASL 2.0
 URL:            http://puppetlabs.com
@@ -36,7 +36,8 @@ Group:          System Environment/Base
 
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
-BuildRequires:  facter >= 1.6.6
+BuildRequires:  ruby-facter >= 1:3.0
+BuildRequires:  ruby-facter < 1:4
 BuildRequires:  ruby-devel >= 1.8.7
 # ruby-devel does not require the base package, but requires -libs instead
 BuildRequires:  ruby >= 1.8.7
@@ -66,7 +67,9 @@ Requires:       ruby
 
 BuildRequires:  hiera >= 1.0.0
 
-Requires:       facter >= 1.6.6
+Requires:       ruby-facter >= 1:3.0
+Requires:       ruby-facter < 1:4
+
 Requires:       hiera >= 1.0.0
 Requires:       rubygem(rgen)
 Obsoletes:      hiera-puppet < 1.0.0-2
@@ -386,6 +389,9 @@ exit 0
 rm -rf %{buildroot}
 
 %changelog
+* Fri Jul 05 2019 Alfredo Moralejo <amoralej@redhat.com> - 4.8.2-2
+- Added support for facter-3
+
 * Fri Jan 20 2017 Alan Pevec <apevec AT redhat.com> - 4.8.2-1
 - Upstream 4.8.2
 
