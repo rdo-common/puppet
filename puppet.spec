@@ -23,9 +23,15 @@
 %global pending_upgrade_path %{_localstatedir}/lib/rpm-state/puppet
 %global pending_upgrade_file %{pending_upgrade_path}/upgrade_pending
 
+%if 0%{?fedora} > 30 || 0%{?rhel} > 8
+%global nm_dispatcher_dir %{buildroot}%{_prefix}/lib/NetworkManager
+%else
+%global nm_dispatcher_dir %{buildroot}%{_sysconfdir}/NetworkManager
+%endif
+
 Name:           puppet
 Version:        5.5.10
-Release:        5%{?dist}
+Release:        6%{?dist}
 Summary:        A network tool for managing many disparate systems
 License:        ASL 2.0
 URL:            http://puppetlabs.com
@@ -189,10 +195,10 @@ rm %{buildroot}%{_sysconfdir}/puppet/hiera.yaml
 # /etc/resolv.conf and such (https://bugzilla.redhat.com/532085).
 %if 0%{?_with_systemd}
 install -Dpv -m0755 %{SOURCE3} \
-    %{buildroot}%{_sysconfdir}/NetworkManager/dispatcher.d/98-%{name}
+    %{buildroot}%{nm_dispatcher_dir}/dispatcher.d/98-%{name}
 %else
 install -Dpv -m0755 %{SOURCE2} \
-    %{buildroot}%{_sysconfdir}/NetworkManager/dispatcher.d/98-%{name}
+    %{buildroot}%{nm_dispatcher_dir}/dispatcher.d/98-%{name}
 %endif
 
 # Install the ext/ directory to %%{_datadir}/%%{name}
@@ -235,9 +241,9 @@ mkdir -p %{buildroot}%{_sysconfdir}/%{name}/modules
 %{_tmpfilesdir}/%{name}.conf
 %endif
 %config(noreplace) %{_sysconfdir}/logrotate.d/puppet
-%dir %{_sysconfdir}/NetworkManager
-%dir %{_sysconfdir}/NetworkManager/dispatcher.d
-%{_sysconfdir}/NetworkManager/dispatcher.d/98-puppet
+%dir %{nm_dispatcher_dir}
+%dir %{nm_dispatcher_dir}/dispatcher.d
+%{nm_dispatcher_dir}/dispatcher.d/98-puppet
 
 %files headless
 %doc README.md examples
@@ -383,6 +389,9 @@ fi
 exit 0
 
 %changelog
+* Thu Aug 22 2019 Lubomir Rintel <lkundrak@v3.sk> - 5.5.10-6
+- Move the NetworkManager dispatcher script out of /etc
+
 * Fri Jul 26 2019 Fedora Release Engineering <releng@fedoraproject.org> - 5.5.10-5
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_31_Mass_Rebuild
 
