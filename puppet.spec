@@ -24,14 +24,14 @@
 %global pending_upgrade_file %{pending_upgrade_path}/upgrade_pending
 
 %if 0%{?fedora} > 30 || 0%{?rhel} > 8
-%global nm_dispatcher_dir %{buildroot}%{_prefix}/lib/NetworkManager
+%global nm_dispatcher_dir %{_prefix}/lib/NetworkManager
 %else
-%global nm_dispatcher_dir %{buildroot}%{_sysconfdir}/NetworkManager
+%global nm_dispatcher_dir %{_sysconfdir}/NetworkManager
 %endif
 
 Name:           puppet
 Version:        5.5.10
-Release:        6%{?dist}
+Release:        7%{?dist}
 Summary:        A network tool for managing many disparate systems
 License:        ASL 2.0
 URL:            http://puppetlabs.com
@@ -389,6 +389,11 @@ fi
 exit 0
 
 %changelog
+* Sun Sep 22 2019 Terje Rosten <terje.rosten@ntnu.no> - 5.5.10-7
+- Drop buildroot prefix in nm_dispatcher_dir macro
+- Fix wrong path for gem in puppetet_gem.rb (rhbz#1751385),
+  report and fix from Lucien Weller, thanks!
+
 * Thu Aug 22 2019 Lubomir Rintel <lkundrak@v3.sk> - 5.5.10-6
 - Move the NetworkManager dispatcher script out of /etc
 
