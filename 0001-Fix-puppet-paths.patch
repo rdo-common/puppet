@@ -44,7 +44,7 @@ index cf6c461..777156a 100644
  
        def run_dir
 -        which_dir("/var/run/puppetlabs", "~/.puppetlabs/var/run")
-+        which_dir("/var/run/puppet", "~/.puppet/var/run")
++        which_dir("/run/puppet", "~/.puppet/var/run")
        end
  
        def log_dir

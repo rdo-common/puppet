@@ -31,7 +31,7 @@
 
 Name:           puppet
 Version:        5.5.10
-Release:        7%{?dist}
+Release:        8%{?dist}
 Summary:        A network tool for managing many disparate systems
 License:        ASL 2.0
 URL:            http://puppetlabs.com
@@ -221,7 +221,7 @@ sed -i 's|^ExecStart=.*/bin/puppet|ExecStart=/usr/bin/start-puppet-agent|' \
 %if 0%{?fedora} >= 15
 # Setup tmpfiles.d config
 mkdir -p %{buildroot}%{_tmpfilesdir}
-echo "D /var/run/%{name} 0755 %{name} %{name} -" > \
+echo "D /run/%{name} 0755 %{name} %{name} -" > \
     %{buildroot}%{_tmpfilesdir}/%{name}.conf
 %endif
 
@@ -389,6 +389,9 @@ fi
 exit 0
 
 %changelog
+* Sun Sep 22 2019 Terje Rosten <terje.rosten@ntnu.no> - 5.5.10-8
+- Prefer /run over /var/run (rhbz#1710635)
+
 * Sun Sep 22 2019 Terje Rosten <terje.rosten@ntnu.no> - 5.5.10-7
 - Drop buildroot prefix in nm_dispatcher_dir macro
 - Fix wrong path for gem in puppetet_gem.rb (rhbz#1751385),
