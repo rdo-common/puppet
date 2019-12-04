@@ -31,7 +31,7 @@
 
 Name:           puppet
 Version:        5.5.10
-Release:        8%{?dist}
+Release:        9%{?dist}
 Summary:        A network tool for managing many disparate systems
 License:        ASL 2.0
 URL:            http://puppetlabs.com
@@ -104,6 +104,7 @@ Requires:       ruby(shadow)
 Requires:       rubygem(json)
 Requires:       rubygem(pathspec)
 Requires:       rubygem(rgen)
+Requires:       rubygem(multi_json)
 # Prevents jruby from being pulled in by dependencies (BZ #985208)
 Requires:       ruby
 # Pull in ruby selinux bindings where available
@@ -389,6 +390,9 @@ fi
 exit 0
 
 %changelog
+* Wed Dec 04 2019 Alfrdo Moralejo <amoralej@redhat.com> - 5.5.10-9
+- Add rubygem-multi_json as dependency.
+
 * Sun Sep 22 2019 Terje Rosten <terje.rosten@ntnu.no> - 5.5.10-8
 - Prefer /run over /var/run (rhbz#1710635)
 
