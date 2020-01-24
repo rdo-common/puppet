@@ -111,11 +111,11 @@ Requires:       ruby
 %{!?_without_selinux:Requires: ruby(selinux), libselinux-utils}
 
 # Fedora 28 updates to facter3 where puppet needs to require the ruby bindings specifically
-%if 0%{?fedora} >= 28
-BuildRequires:  ruby-facter >= 3.0
-BuildRequires:  ruby-facter < 4
-Requires:       ruby-facter >= 3.0
-Requires:       ruby-facter < 4
+%if 0%{?fedora} >= 28 || 0%{?rhel} >= 8
+BuildRequires:  ruby-facter >= %{?has_epoch:1:}3.0
+BuildRequires:  ruby-facter < %{?has_epoch:1:}4
+Requires:       ruby-facter >= %{?has_epoch:1:}3.0
+Requires:       ruby-facter < %{?has_epoch:1:}4
 %else
 BuildRequires:  facter >= %{?has_epoch:1:}2.0
 BuildRequires:  facter < %{?has_epoch:1:}4
