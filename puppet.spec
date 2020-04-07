@@ -1,13 +1,5 @@
-# Augeas and SELinux requirements may be disabled at build time by passing
-# --without augeas and/or --without selinux to rpmbuild or mock
-
-# Specifically not using systemd on F18 as it's technically a break between
-# using SystemV on 2.7.x and Systemd on 3.1.0.
-%if 0%{?fedora} || 0%{?rhel} >= 7
 %global puppet_libdir   %{ruby_vendorlibdir}
-%else
-%global puppet_libdir   %(ruby -rrbconfig -e 'puts RbConfig::CONFIG["sitelibdir"]')
-%endif
+%global puppet_vendorlib /usr/share/ruby/vendor_ruby/puppet/vendor_modules
 
 %if 0%{?fedora} > 18 || 0%{?rhel} >= 7 || 0%{?suse_version}
 %global _with_systemd 1
@@ -23,15 +15,22 @@
 %global pending_upgrade_path %{_localstatedir}/lib/rpm-state/puppet
 %global pending_upgrade_file %{pending_upgrade_path}/upgrade_pending
 
-%if 0%{?fedora} > 30 || 0%{?rhel} > 8
-%global nm_dispatcher_dir %{_prefix}/lib/NetworkManager
-%else
-%global nm_dispatcher_dir %{_sysconfdir}/NetworkManager
-%endif
+# Versions of vendored modules bundled in puppet package
+%global augeas_core_vers 1.0.5
+%global cron_core_vers 1.0.3
+%global host_core_vers 1.0.3
+%global mount_core_vers 1.0.4
+%global scheduled_task_vers 2.0.1
+%global selinux_core_vers 1.0.4
+%global sshkeys_core_vers 2.0.0
+%global yumrepo_core_vers 1.0.6
+%global zfs_core_vers 1.0.5
+%global zone_core_vers 1.0.3
+#
 
 Name:           puppet
-Version:        5.5.10
-Release:        9%{?dist}
+Version:        6.14.0
+Release:        2%{?dist}
 Summary:        A network tool for managing many disparate systems
 License:        ASL 2.0
 URL:            http://puppetlabs.com
@@ -40,21 +39,27 @@ Source1:        http://downloads.puppetlabs.com/%{name}/%{name}-%{version}.tar.g
 Source2:        puppet-nm-dispatcher
 Source3:        puppet-nm-dispatcher.systemd
 Source4:        start-puppet-wrapper
+Source10:       https://forge.puppet.com/v3/files/puppetlabs-augeas_core-%{augeas_core_vers}.tar.gz
+Source11:       https://forge.puppet.com/v3/files/puppetlabs-cron_core-%{cron_core_vers}.tar.gz
+Source12:       https://forge.puppet.com/v3/files/puppetlabs-host_core-%{host_core_vers}.tar.gz
+Source13:       https://forge.puppet.com/v3/files/puppetlabs-mount_core-%{mount_core_vers}.tar.gz
+Source14:       https://forge.puppet.com/v3/files/puppetlabs-scheduled_task-%{scheduled_task_vers}.tar.gz
+Source15:       https://forge.puppet.com/v3/files/puppetlabs-selinux_core-%{selinux_core_vers}.tar.gz
+Source16:       https://forge.puppet.com/v3/files/puppetlabs-sshkeys_core-%{sshkeys_core_vers}.tar.gz
+Source17:       https://forge.puppet.com/v3/files/puppetlabs-yumrepo_core-%{yumrepo_core_vers}.tar.gz
+Source18:       https://forge.puppet.com/v3/files/puppetlabs-zfs_core-%{zfs_core_vers}.tar.gz
+Source19:       https://forge.puppet.com/v3/files/puppetlabs-zone_core-%{zone_core_vers}.tar.gz
 
 # Puppetlabs messed up with default paths
 Patch01:        0001-Fix-puppet-paths.patch
 Patch02:        0002-Revert-maint-Remove-puppetmaster.service.patch
-Patch03:        0003-Remove-Fedora-release-restrictions-from-DNF-provider.patch
-# Note: Puppet 5.5.7 is broken
-# Backporting patches that add supports for RHEL > 7
-# https://github.com/puppetlabs/puppet/pull/7000 (PUP-9069)
-Patch04:        0004-PUP-9069-Add-support-for-RHEL8.patch
+Patch03:        0001-Adapt-path-for-vendored-modules-according-to-Fedora-.patch
 
 BuildArch:      noarch
 BuildRequires:  git
-BuildRequires:  ruby-devel >= 1.8.7
+BuildRequires:  ruby-devel >= 2.3.0
 # ruby-devel does not require the base package, but requires -libs instead
-BuildRequires:  ruby >= 1.8.7
+BuildRequires:  ruby >= 2.3.0
 
 Requires:       puppet-headless = %{version}-%{release}
 
@@ -74,24 +79,6 @@ cross-platform specification language that manages all the separate elements
 normally aggregated in different files, like users, cron jobs, and hosts,
 along with obviously discrete elements like packages, services, and files.
 
-%package server
-Summary:        Server for the puppet system management tool
-Requires:       puppet = %{version}-%{release}
-Requires:       puppet-headless = %{version}-%{release}
-%if 0%{?_with_systemd}
-%{?systemd_requires}
-BuildRequires: systemd
-%else
-Requires(post): chkconfig
-Requires(preun): chkconfig
-Requires(preun): initscripts
-Requires(postun): initscripts
-%endif
-
-%description server
-Provides the central puppet server daemon which provides manifests to clients.
-The server can also function as a certificate authority and file server.
-
 %package headless
 Summary:        Headless Puppet
 Conflicts:      puppet < 5.5.6-6
@@ -104,14 +91,14 @@ Requires:       ruby(shadow)
 Requires:       rubygem(json)
 Requires:       rubygem(pathspec)
 Requires:       rubygem(rgen)
-Requires:       rubygem(multi_json)
 # Prevents jruby from being pulled in by dependencies (BZ #985208)
 Requires:       ruby
 # Pull in ruby selinux bindings where available
 %{!?_without_selinux:Requires: ruby(selinux), libselinux-utils}
 
 # Fedora 28 updates to facter3 where puppet needs to require the ruby bindings specifically
-%if 0%{?fedora} >= 28 || 0%{?rhel} >= 8
+# RHEL8 has also moved to facter3
+%if 0%{?fedora} >= 28 || 0%{?rhel} > 7
 BuildRequires:  ruby-facter >= %{?has_epoch:1:}3.0
 BuildRequires:  ruby-facter < %{?has_epoch:1:}4
 Requires:       ruby-facter >= %{?has_epoch:1:}3.0
@@ -133,13 +120,32 @@ Provides:       hiera-puppet = %{version}-%{release}
 Requires:       tar
 Requires(pre):  shadow-utils
 
+Requires:       rubygem(fast_gettext) >= 1.1
+Requires:       rubygem(multi_json) >= 1.10
+# Add requires for modules and library unbundled in 6.0.0
+Requires:       rubygem(semantic_puppet) >= 1.0.2
+Requires:       rubygem(puppet-resource_api) >= 1.8.4
+Requires:       rubygem(concurrent-ruby) >= 1.0
+Requires:       rubygem(deep_merge) >= 1.0
+
 %description headless
 This puppet headless subpackage may be used when there is no need to
 have puppet agent running as a service, for example, in a container
 image.
 
 %prep
+%setup -D -b 10 puppetlabs-augeas_core-%{augeas_core_vers}
+%setup -D -b 11 puppetlabs-cron_core-%{cron_core_vers}
+%setup -D -b 12 puppetlabs-host_core-%{host_core_vers}
+%setup -D -b 13 puppetlabs-mount_core-%{mount_core_vers}
+%setup -D -b 14 puppetlabs-scheduled_task-%{scheduled_task_vers}
+%setup -D -b 15 puppetlabs-selinux_core-%{selinux_core_vers}
+%setup -D -b 16 puppetlabs-sshkeys_core-%{sshkeys_core_vers}
+%setup -D -b 17 puppetlabs-yumrepo_core-%{yumrepo_core_vers}
+%setup -D -b 18 puppetlabs-zfs_core-%{zfs_core_vers}
+%setup -D -b 19 puppetlabs-zone_core-%{zone_core_vers}
 %autosetup -S git
+
 # Unbundle
 rm -r lib/puppet/vendor/pathspec
 # Note(hguemar): remove unrelated OS/distro specific folders
@@ -171,21 +177,28 @@ install -d -m0755 %{buildroot}%{_localstatedir}/run/puppet
 install -d -m0750 %{buildroot}%{_localstatedir}/log/puppet
 install -d -m0750 %{buildroot}%{_localstatedir}/cache/puppet
 
+mkdir -p %{buildroot}%{puppet_vendorlib}
+mv %{_builddir}/puppetlabs-augeas_core-%{augeas_core_vers} %{buildroot}%{puppet_vendorlib}/augeas_core
+mv %{_builddir}/puppetlabs-cron_core-%{cron_core_vers} %{buildroot}%{puppet_vendorlib}/cron_core
+mv %{_builddir}/puppetlabs-host_core-%{host_core_vers} %{buildroot}%{puppet_vendorlib}/host_core
+mv %{_builddir}/puppetlabs-mount_core-%{mount_core_vers} %{buildroot}%{puppet_vendorlib}/mount_core
+mv %{_builddir}/puppetlabs-scheduled_task-%{scheduled_task_vers} %{buildroot}%{puppet_vendorlib}/scheduled_task
+mv %{_builddir}/puppetlabs-selinux_core-%{mount_core_vers} %{buildroot}%{puppet_vendorlib}/selinux_core
+mv %{_builddir}/puppetlabs-sshkeys_core-%{sshkeys_core_vers} %{buildroot}%{puppet_vendorlib}/sshkeys_core
+mv %{_builddir}/puppetlabs-yumrepo_core-%{yumrepo_core_vers} %{buildroot}%{puppet_vendorlib}/yumrepo_core
+mv %{_builddir}/puppetlabs-zfs_core-%{zfs_core_vers} %{buildroot}%{puppet_vendorlib}/zfs_core
+mv %{_builddir}/puppetlabs-zone_core-%{zone_core_vers} %{buildroot}%{puppet_vendorlib}/zone_core
+
 %if 0%{?_with_systemd}
 %{__install} -d -m0755  %{buildroot}%{_unitdir}
 install -Dp -m0644 ext/systemd/puppet.service %{buildroot}%{_unitdir}/puppet.service
 ln -s %{_unitdir}/puppet.service %{buildroot}%{_unitdir}/puppetagent.service
-install -Dp -m0644 ext/systemd/puppetmaster.service %{buildroot}%{_unitdir}/puppetmaster.service
 %else
 install -Dp -m0644 %{confdir}/client.sysconfig %{buildroot}%{_sysconfdir}/sysconfig/puppet
 install -Dp -m0755 %{confdir}/client.init %{buildroot}%{_initrddir}/puppet
-install -Dp -m0644 %{confdir}/server.sysconfig %{buildroot}%{_sysconfdir}/sysconfig/puppetmaster
-install -Dp -m0755 %{confdir}/server.init %{buildroot}%{_initrddir}/puppetmaster
-install -Dp -m0755 %{confdir}/queue.init %{buildroot}%{_initrddir}/puppetqueue
 %endif
 
 install -Dp -m0644 %{confdir}/auth.conf %{buildroot}%{_sysconfdir}/puppet/auth.conf
-install -Dp -m0644 %{confdir}/fileserver.conf %{buildroot}%{_sysconfdir}/puppet/fileserver.conf
 install -Dp -m0644 %{confdir}/puppet.conf %{buildroot}%{_sysconfdir}/puppet/puppet.conf
 install -Dp -m0644 ext/redhat/logrotate %{buildroot}%{_sysconfdir}/logrotate.d/puppet
 
@@ -196,10 +209,10 @@ rm %{buildroot}%{_sysconfdir}/puppet/hiera.yaml
 # /etc/resolv.conf and such (https://bugzilla.redhat.com/532085).
 %if 0%{?_with_systemd}
 install -Dpv -m0755 %{SOURCE3} \
-    %{buildroot}%{nm_dispatcher_dir}/dispatcher.d/98-%{name}
+    %{buildroot}%{_sysconfdir}/NetworkManager/dispatcher.d/98-%{name}
 %else
 install -Dpv -m0755 %{SOURCE2} \
-    %{buildroot}%{nm_dispatcher_dir}/dispatcher.d/98-%{name}
+    %{buildroot}%{_sysconfdir}/NetworkManager/dispatcher.d/98-%{name}
 %endif
 
 # Install the ext/ directory to %%{_datadir}/%%{name}
@@ -213,8 +226,6 @@ install -Dp -m0755 %{SOURCE4} %{buildroot}%{_bindir}/start-puppet-agent
 install -Dp -m0755 %{SOURCE4} %{buildroot}%{_bindir}/start-puppet-master
 install -Dp -m0755 %{SOURCE4} %{buildroot}%{_bindir}/start-puppet-ca
 %if 0%{?_with_systemd}
-sed -i 's|^ExecStart=.*/bin/puppet|ExecStart=/usr/bin/start-puppet-master|' \
-  %{buildroot}%{_unitdir}/puppetmaster.service
 sed -i 's|^ExecStart=.*/bin/puppet|ExecStart=/usr/bin/start-puppet-agent|' \
   %{buildroot}%{_unitdir}/puppet.service
 %endif
@@ -222,13 +233,15 @@ sed -i 's|^ExecStart=.*/bin/puppet|ExecStart=/usr/bin/start-puppet-agent|' \
 %if 0%{?fedora} >= 15
 # Setup tmpfiles.d config
 mkdir -p %{buildroot}%{_tmpfilesdir}
-echo "D /run/%{name} 0755 %{name} %{name} -" > \
+echo "D /var/run/%{name} 0755 %{name} %{name} -" > \
     %{buildroot}%{_tmpfilesdir}/%{name}.conf
 %endif
 
 # Create puppet modules directory for puppet module tool
 mkdir -p %{buildroot}%{_sysconfdir}/%{name}/modules
 
+# Create directory for vendored modules
+mkdir -p %{buildroot}%{puppet_libdir}/puppet/vendor_modules
 
 %files
 %if 0%{?_with_systemd}
@@ -242,9 +255,9 @@ mkdir -p %{buildroot}%{_sysconfdir}/%{name}/modules
 %{_tmpfilesdir}/%{name}.conf
 %endif
 %config(noreplace) %{_sysconfdir}/logrotate.d/puppet
-%dir %{nm_dispatcher_dir}
-%dir %{nm_dispatcher_dir}/dispatcher.d
-%{nm_dispatcher_dir}/dispatcher.d/98-puppet
+%dir %{_sysconfdir}/NetworkManager
+%dir %{_sysconfdir}/NetworkManager/dispatcher.d
+%{_sysconfdir}/NetworkManager/dispatcher.d/98-puppet
 
 %files headless
 %doc README.md examples
@@ -252,6 +265,7 @@ mkdir -p %{buildroot}%{_sysconfdir}/%{name}/modules
 %{_bindir}/puppet
 %{_bindir}/start-puppet-*
 %{puppet_libdir}/*
+%{puppet_vendorlib}
 %dir %{_sysconfdir}/puppet
 %dir %{_sysconfdir}/%{name}/modules
 %config(noreplace) %{_sysconfdir}/puppet/puppet.conf
@@ -269,11 +283,6 @@ mkdir -p %{buildroot}%{_sysconfdir}/%{name}/modules
 %{_mandir}/man8/puppet-apply.8.gz
 %{_mandir}/man8/puppet-catalog.8.gz
 %{_mandir}/man8/puppet-describe.8.gz
-%{_mandir}/man8/puppet-ca.8.gz
-%{_mandir}/man8/puppet-cert.8.gz
-%{_mandir}/man8/puppet-certificate.8.gz
-%{_mandir}/man8/puppet-certificate_request.8.gz
-%{_mandir}/man8/puppet-certificate_revocation_list.8.gz
 %{_mandir}/man8/puppet-config.8.gz
 %{_mandir}/man8/puppet-device.8.gz
 %{_mandir}/man8/puppet-doc.8.gz
@@ -292,19 +301,8 @@ mkdir -p %{buildroot}%{_sysconfdir}/%{name}/modules
 %{_mandir}/man8/puppet-report.8.gz
 %{_mandir}/man8/puppet-resource.8.gz
 %{_mandir}/man8/puppet-script.8.gz
+%{_mandir}/man8/puppet-ssl.8.gz
 %{_mandir}/man8/puppet-status.8.gz
-
-%files server
-%if 0%{?_with_systemd}
-%{_unitdir}/puppetmaster.service
-%else
-%{_initrddir}/puppetmaster
-%{_initrddir}/puppetqueue
-%config(noreplace) %{_sysconfdir}/sysconfig/puppetmaster
-%endif
-%config(noreplace) %{_sysconfdir}/puppet/fileserver.conf
-%dir %{_sysconfdir}/puppet/manifests
-%{_mandir}/man8/puppet-master.8.gz
 
 # Fixed uid/gid were assigned in bz 472073 (Fedora), 471918 (RHEL-5),
 # and 471919 (RHEL-4)
@@ -339,14 +337,6 @@ fi
 %endif
 exit 0
 
-%post server
-%if 0%{?_with_systemd}
-%systemd_post puppetmaster.service
-%else
-/sbin/chkconfig --add puppetmaster
-%endif
-exit 0
-
 %preun
 %if 0%{?_with_systemd}
 %systemd_preun puppet.service
@@ -354,17 +344,6 @@ exit 0
 if [ "$1" -eq 0 ]; then
   /sbin/service puppet stop &>/dev/null
   /sbin/chkconfig --del puppet
-fi
-%endif
-exit 0
-
-%preun server
-%if 0%{?_with_systemd}
-%systemd_preun puppetmaster.service
-%else
-if [ "$1" -eq 0 ]; then
-  /sbin/service puppetmaster stop &>/dev/null
-  /sbin/chkconfig --del puppetmaster
 fi
 %endif
 exit 0
@@ -379,17 +358,10 @@ fi
 %endif
 exit 0
 
-%postun server
-%if 0%{?_with_systemd}
-%systemd_postun_with_restart puppetmaster.service
-%else
-if [ "$1" -ge 1 ]; then
-  /sbin/service puppetmaster condrestart &>/dev/null
-fi
-%endif
-exit 0
-
 %changelog
+* Tue Apr 07 2020 Alfredo Moralejo <amoralej@redhat.com> - 6.14.0-2
+- Update to 6.14.0
+
 * Wed Dec 04 2019 Alfrdo Moralejo <amoralej@redhat.com> - 5.5.10-9
 - Add rubygem-multi_json as dependency.
 
