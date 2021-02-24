@@ -16,21 +16,21 @@
 %global pending_upgrade_file %{pending_upgrade_path}/upgrade_pending
 
 # Versions of vendored modules bundled in puppet package
-%global augeas_core_vers 1.0.5
-%global cron_core_vers 1.0.3
+%global augeas_core_vers 1.1.1
+%global cron_core_vers 1.0.5
 %global host_core_vers 1.0.3
 %global mount_core_vers 1.0.4
 %global scheduled_task_vers 2.0.1
 %global selinux_core_vers 1.0.4
-%global sshkeys_core_vers 2.0.0
-%global yumrepo_core_vers 1.0.6
-%global zfs_core_vers 1.0.5
+%global sshkeys_core_vers 2.2.0
+%global yumrepo_core_vers 1.0.7
+%global zfs_core_vers 1.2.0
 %global zone_core_vers 1.0.3
 #
 
 Name:           puppet
-Version:        6.14.0
-Release:        2%{?dist}
+Version:        6.21.1
+Release:        1%{?dist}
 Summary:        A network tool for managing many disparate systems
 License:        ASL 2.0
 URL:            http://puppetlabs.com
@@ -359,6 +359,9 @@ fi
 exit 0
 
 %changelog
+* Tue Feb 23 2021 Yatin Karel <ykarel@redhat.com> - 6.21.1-1
+- Update to 6.21.1
+
 * Tue Apr 07 2020 Alfredo Moralejo <amoralej@redhat.com> - 6.14.0-2
 - Update to 6.14.0
 
