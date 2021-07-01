@@ -16,12 +16,12 @@
 %global pending_upgrade_file %{pending_upgrade_path}/upgrade_pending
 
 # Versions of vendored modules bundled in puppet package
-%global augeas_core_vers 1.1.1
+%global augeas_core_vers 1.1.2
 %global cron_core_vers 1.0.5
 %global host_core_vers 1.0.3
 %global mount_core_vers 1.0.4
 %global scheduled_task_vers 2.0.1
-%global selinux_core_vers 1.0.4
+%global selinux_core_vers 1.1.0
 %global sshkeys_core_vers 2.2.0
 %global yumrepo_core_vers 1.0.7
 %global zfs_core_vers 1.2.0
@@ -29,13 +29,13 @@
 #
 
 Name:           puppet
-Version:        6.21.1
+Version:        7.8.0
 Release:        1%{?dist}
 Summary:        A network tool for managing many disparate systems
 License:        ASL 2.0
 URL:            http://puppetlabs.com
 Source0:        http://downloads.puppetlabs.com/%{name}/%{name}-%{version}.tar.gz
-Source1:        http://downloads.puppetlabs.com/%{name}/%{name}-%{version}.tar.gz.asc
+#Source1:        http://downloads.puppetlabs.com/%{name}/%{name}-%{version}.tar.gz.asc
 Source2:        puppet-nm-dispatcher
 Source3:        puppet-nm-dispatcher.systemd
 Source4:        start-puppet-wrapper
@@ -89,8 +89,9 @@ Requires:       ruby(release)
 %endif
 Requires:       ruby(shadow)
 Requires:       rubygem(json)
-Requires:       rubygem(pathspec)
-Requires:       rubygem(rgen)
+# Removed in puppet 7
+#Requires:       rubygem(pathspec)
+#Requires:       rubygem(rgen)
 # Prevents jruby from being pulled in by dependencies (BZ #985208)
 Requires:       ruby
 # Pull in ruby selinux bindings where available
@@ -100,9 +101,9 @@ Requires:       ruby
 # RHEL8 has also moved to facter3
 %if 0%{?fedora} >= 28 || 0%{?rhel} > 7
 BuildRequires:  ruby-facter >= %{?has_epoch:1:}3.0
-BuildRequires:  ruby-facter < %{?has_epoch:1:}4
+BuildRequires:  ruby-facter < %{?has_epoch:1:}5
 Requires:       ruby-facter >= %{?has_epoch:1:}3.0
-Requires:       ruby-facter < %{?has_epoch:1:}4
+Requires:       ruby-facter < %{?has_epoch:1:}5
 %else
 BuildRequires:  facter >= %{?has_epoch:1:}2.0
 BuildRequires:  facter < %{?has_epoch:1:}4
@@ -123,7 +124,7 @@ Requires(pre):  shadow-utils
 Requires:       rubygem(fast_gettext) >= 1.1
 Requires:       rubygem(multi_json) >= 1.10
 # Add requires for modules and library unbundled in 6.0.0
-Requires:       rubygem(semantic_puppet) >= 1.0.2
+Requires:       rubygem(semantic_puppet) >= 1.0.4
 Requires:       rubygem(puppet-resource_api) >= 1.8.4
 Requires:       rubygem(concurrent-ruby) >= 1.0
 Requires:       rubygem(deep_merge) >= 1.0
@@ -147,7 +148,7 @@ image.
 %autosetup -S git
 
 # Unbundle
-rm -r lib/puppet/vendor/pathspec
+rm -rf lib/puppet/vendor/pathspec
 # Note(hguemar): remove unrelated OS/distro specific folders
 # These mess-up with RPM automatic dependencies compute by adding
 # unnecessary deps like /sbin/runscripts
@@ -183,7 +184,7 @@ mv %{_builddir}/puppetlabs-cron_core-%{cron_core_vers} %{buildroot}%{puppet_vend
 mv %{_builddir}/puppetlabs-host_core-%{host_core_vers} %{buildroot}%{puppet_vendorlib}/host_core
 mv %{_builddir}/puppetlabs-mount_core-%{mount_core_vers} %{buildroot}%{puppet_vendorlib}/mount_core
 mv %{_builddir}/puppetlabs-scheduled_task-%{scheduled_task_vers} %{buildroot}%{puppet_vendorlib}/scheduled_task
-mv %{_builddir}/puppetlabs-selinux_core-%{mount_core_vers} %{buildroot}%{puppet_vendorlib}/selinux_core
+mv %{_builddir}/puppetlabs-selinux_core-%{selinux_core_vers} %{buildroot}%{puppet_vendorlib}/selinux_core
 mv %{_builddir}/puppetlabs-sshkeys_core-%{sshkeys_core_vers} %{buildroot}%{puppet_vendorlib}/sshkeys_core
 mv %{_builddir}/puppetlabs-yumrepo_core-%{yumrepo_core_vers} %{buildroot}%{puppet_vendorlib}/yumrepo_core
 mv %{_builddir}/puppetlabs-zfs_core-%{zfs_core_vers} %{buildroot}%{puppet_vendorlib}/zfs_core
@@ -198,7 +199,7 @@ install -Dp -m0644 %{confdir}/client.sysconfig %{buildroot}%{_sysconfdir}/syscon
 install -Dp -m0755 %{confdir}/client.init %{buildroot}%{_initrddir}/puppet
 %endif
 
-install -Dp -m0644 %{confdir}/auth.conf %{buildroot}%{_sysconfdir}/puppet/auth.conf
+#install -Dp -m0644 %{confdir}/auth.conf %{buildroot}%{_sysconfdir}/puppet/auth.conf
 install -Dp -m0644 %{confdir}/puppet.conf %{buildroot}%{_sysconfdir}/puppet/puppet.conf
 install -Dp -m0644 ext/redhat/logrotate %{buildroot}%{_sysconfdir}/logrotate.d/puppet
 
@@ -269,7 +270,7 @@ mkdir -p %{buildroot}%{puppet_libdir}/puppet/vendor_modules
 %dir %{_sysconfdir}/puppet
 %dir %{_sysconfdir}/%{name}/modules
 %config(noreplace) %{_sysconfdir}/puppet/puppet.conf
-%config(noreplace) %{_sysconfdir}/puppet/auth.conf
+#%config(noreplace) %{_sysconfdir}/puppet/auth.conf
 %{_datadir}/%{name}
 # These need to be owned by puppet so the server can
 # write to them
@@ -291,9 +292,9 @@ mkdir -p %{buildroot}%{puppet_libdir}/puppet/vendor_modules
 %{_mandir}/man8/puppet-generate.8.gz
 %{_mandir}/man8/puppet-help.8.gz
 %{_mandir}/man8/puppet-epp.8.gz
-%{_mandir}/man8/puppet-key.8.gz
+#%{_mandir}/man8/puppet-key.8.gz
 %{_mandir}/man8/puppet-lookup.8.gz
-%{_mandir}/man8/puppet-man.8.gz
+#%{_mandir}/man8/puppet-man.8.gz
 %{_mandir}/man8/puppet-module.8.gz
 %{_mandir}/man8/puppet-node.8.gz
 %{_mandir}/man8/puppet-parser.8.gz
@@ -302,7 +303,7 @@ mkdir -p %{buildroot}%{puppet_libdir}/puppet/vendor_modules
 %{_mandir}/man8/puppet-resource.8.gz
 %{_mandir}/man8/puppet-script.8.gz
 %{_mandir}/man8/puppet-ssl.8.gz
-%{_mandir}/man8/puppet-status.8.gz
+#%{_mandir}/man8/puppet-status.8.gz
 
 # Fixed uid/gid were assigned in bz 472073 (Fedora), 471918 (RHEL-5),
 # and 471919 (RHEL-4)
@@ -359,6 +360,12 @@ fi
 exit 0
 
 %changelog
+* Thu Jul 01 2021 Alfredo Moralejo <amoralej@redhat.com> - 7.8.0-1
+- Update to 7.8.0. Includes support for Ruby 3
+
+* Mon May 31 2021 Alfredo Moralejo <amoralej@redhat.com> - 7.6.1-1
+- Update to 7.6.1
+
 * Tue Feb 23 2021 Yatin Karel <ykarel@redhat.com> - 6.21.1-1
 - Update to 6.21.1
 

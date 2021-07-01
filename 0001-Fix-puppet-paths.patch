@@ -1,17 +1,17 @@
-From 23bcde066d9915952b9bf2c8fd0770a2ce9422ce Mon Sep 17 00:00:00 2001
-From: Haikel Guemar <hguemar@redhat.com>
-Date: Wed, 29 Apr 2015 01:38:35 +0200
-Subject: [PATCH 1/5] Fix puppet paths
+From e6d4f123893c27a3d8a6aac7b26853023433166e Mon Sep 17 00:00:00 2001
+From: Yatin Karel <ykarel@redhat.com>
+Date: Fri, 14 May 2021 08:21:46 +0000
+Subject: [PATCH] Fix puppet paths
 
 ---
- lib/puppet/util/run_mode.rb | 10 +++++-----
- 1 file changed, 5 insertions(+), 5 deletions(-)
+ lib/puppet/util/run_mode.rb | 12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
 
 diff --git a/lib/puppet/util/run_mode.rb b/lib/puppet/util/run_mode.rb
-index cf6c461..777156a 100644
+index 36f38ddb0d..314bf1bd15 100644
 --- a/lib/puppet/util/run_mode.rb
 +++ b/lib/puppet/util/run_mode.rb
-@@ -59,23 +59,23 @@ module Puppet
+@@ -63,27 +63,27 @@ module Puppet
  
      class UnixRunMode < RunMode
        def conf_dir
@@ -29,6 +29,11 @@ index cf6c461..777156a 100644
 +        which_dir("/var/lib/puppet", "~/.puppet/cache")
        end
  
+       def public_dir
+-        which_dir("/opt/puppetlabs/puppet/public", "~/.puppetlabs/opt/puppet/public")
++        which_dir("/var/lib/puppet", "~/.puppet/public")
+       end
+ 
        def run_dir
 -        which_dir("/var/run/puppetlabs", "~/.puppetlabs/var/run")
 +        which_dir("/var/run/puppet", "~/.puppet/var/run")
@@ -41,5 +46,4 @@ index cf6c461..777156a 100644
      end
  
 -- 
-2.19.2
-
+2.27.0
